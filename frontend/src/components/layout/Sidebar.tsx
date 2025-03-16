@@ -1,4 +1,4 @@
-import { BookOpen, Home, LogOut, Users } from 'react-feather';
+import { BookOpen, Home, LogOut, Star, User, Users } from 'react-feather';
 import { useHistory } from 'react-router';
 import { Link } from 'react-router-dom';
 
@@ -50,9 +50,15 @@ export default function Sidebar({ className }: SidebarProps) {
             <Users /> Users
           </SidebarItem>
         ) : null}
+        <SidebarItem to="/profile">
+          <User /> Profile
+        </SidebarItem>
+        <SidebarItem to="/favorites">
+          <Star /> Favorites
+        </SidebarItem>
       </nav>
       <button
-        className="text-red-500 rounded-md p-3 transition-colors flex gap-3 justify-center items-center font-semibold focus:outline-none"
+        className="text-red-500 rounded-md p-3 transition-colors flex gap-3 justify-center items-center font-semibold focus:outline-none relative z-10"
         onClick={handleLogout}
       >
         <LogOut /> Logout

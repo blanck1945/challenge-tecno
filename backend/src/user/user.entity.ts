@@ -1,7 +1,15 @@
 import { Exclude } from 'class-transformer';
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 import { Role } from '../enums/role.enum';
+import { Course } from 'src/course/course.entity';
 
 @Entity()
 export class User extends BaseEntity {
@@ -23,6 +31,10 @@ export class User extends BaseEntity {
 
   @Column({ type: 'enum', enum: Role, default: Role.User })
   role: Role;
+
+  @ManyToMany(() => Course, (course) => course.users)
+  @JoinTable()
+  favorites: Course[];
 
   @Column({ nullable: true })
   @Exclude()

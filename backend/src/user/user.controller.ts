@@ -24,6 +24,7 @@ import { CreateUserDto, UpdateUserDto } from './user.dto';
 import { User } from './user.entity';
 import { UserQuery } from './user.query';
 import { UserService } from './user.service';
+import { Course } from 'src/course/course.entity';
 
 @Controller('users')
 @ApiTags('Users')
@@ -50,6 +51,11 @@ export class UserController {
   @UseGuards(UserGuard)
   async findOne(@Param('id') id: string): Promise<User> {
     return await this.userService.findById(id);
+  }
+
+  @Get(':id/favorites')
+  async getFavorites(@Param('id') userId: string): Promise<Course[]> {
+    return this.userService.getFavorites(userId);
   }
 
   @Put('/:id')

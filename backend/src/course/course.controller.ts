@@ -7,7 +7,9 @@ import {
   Post,
   Put,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
@@ -23,6 +25,7 @@ import { CreateCourseDto, UpdateCourseDto } from './course.dto';
 import { Course } from './course.entity';
 import { CourseQuery } from './course.query';
 import { CourseService } from './course.service';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('courses')
 @ApiBearerAuth()
@@ -41,8 +44,7 @@ export class CourseController {
   }
 
   @Get()
-  async findAll(@Query() courseQuery: CourseQuery): Promise<Course[]> {
-    console.log('courseQuery', courseQuery);
+  async findAll(@Query() courseQuery: CourseQuery): Promise<any> {
     return await this.courseService.findAll(courseQuery);
   }
 
@@ -68,10 +70,16 @@ export class CourseController {
 
   @Post('/:id/contents')
   @Roles(Role.Admin, Role.Editor)
+  @UseInterceptors(FileInterceptor('image'))
   async saveContent(
     @Param('id') id: string,
-    @Body() createContentDto: CreateContentDto,
+    @Body() createContentDto: any,
+    @UploadedFile() file,
   ): Promise<Content> {
+    if (file) {
+      createContentDto.image = file.buffer;
+    }
+
     return await this.contentService.save(id, createContentDto);
   }
 

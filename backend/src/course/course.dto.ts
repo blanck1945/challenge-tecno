@@ -8,6 +8,10 @@ export class CreateCourseDto {
   @IsNotEmpty()
   @IsString()
   description: string;
+
+  @IsOptional()
+  @IsString()
+  image: any;
 }
 
 export class UpdateCourseDto {
@@ -20,4 +24,8 @@ export class UpdateCourseDto {
   @IsNotEmpty()
   @IsString()
   description?: string;
+
+  @IsOptional()
+  @IsString()
+  image?: any;
 }

@@ -16,10 +16,7 @@ class ContentService {
     ).data;
   }
 
-  async save(
-    courseId: string,
-    createContentRequest: CreateContentRequest,
-  ): Promise<void> {
+  async save(courseId: string, createContentRequest: FormData): Promise<void> {
     await apiService.post(
       `/api/courses/${courseId}/contents`,
       createContentRequest,

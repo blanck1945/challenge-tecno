@@ -8,6 +8,10 @@ export class CreateContentDto {
   @IsNotEmpty()
   @IsString()
   description: string;
+
+  @IsOptional()
+  @IsString()
+  image: any;
 }
 
 export class UpdateContentDto {
@@ -20,4 +24,8 @@ export class UpdateContentDto {
   @IsNotEmpty()
   @IsString()
   description?: string;
+
+  @IsOptional()
+  @IsString()
+  image?: any;
 }

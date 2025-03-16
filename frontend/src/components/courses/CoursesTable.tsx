@@ -12,11 +12,18 @@ import Table from '../shared/Table';
 import TableItem from '../shared/TableItem';
 
 interface UsersTableProps {
-  data: Course[];
+  data: any;
   isLoading: boolean;
+  refetch: () => void;
+  setPage: (page: number) => void;
 }
 
-export default function CoursesTable({ data, isLoading }: UsersTableProps) {
+export default function CoursesTable({
+  data,
+  isLoading,
+  refetch,
+  setPage,
+}: UsersTableProps) {
   const { authenticatedUser } = useAuth();
   const [deleteShow, setDeleteShow] = useState<boolean>(false);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
@@ -50,9 +57,15 @@ export default function CoursesTable({ data, isLoading }: UsersTableProps) {
       setUpdateShow(false);
       reset();
       setError(null);
+      refetch();
     } catch (error) {
       setError(error.response.data.message);
     }
+  };
+
+  const handlePageChange = (page: number) => {
+    setPage(page);
+    refetch();
   };
 
   return (
@@ -61,7 +74,7 @@ export default function CoursesTable({ data, isLoading }: UsersTableProps) {
         <Table columns={['Name', 'Description', 'Created']}>
           {isLoading
             ? null
-            : data.map(({ id, name, description, dateCreated }) => (
+            : data?.courses.map(({ id, name, description, dateCreated }) => (
                 <tr key={id}>
                   <TableItem>
                     <Link to={`/courses/${id}`}>{name}</Link>
@@ -101,6 +114,29 @@ export default function CoursesTable({ data, isLoading }: UsersTableProps) {
                 </tr>
               ))}
         </Table>
+
+        <div className="flex justify-between items-center mt-4 border-t p-4">
+          <div className="text-sm text-gray-700">
+            Mostrando página {data?.page} de {data?.lastPage}
+          </div>
+          <div className="flex gap-2">
+            <button
+              className="btn"
+              disabled={data?.page === 1}
+              onClick={() => handlePageChange(data?.page - 1)}
+            >
+              Anterior
+            </button>
+            <button
+              className="btn"
+              disabled={data?.page === data?.lastPage}
+              onClick={() => handlePageChange(data?.page + 1)}
+            >
+              Siguiente
+            </button>
+          </div>
+        </div>
+
         {!isLoading && data.length < 1 ? (
           <div className="text-center my-5 text-gray-500">
             <h1>Empty</h1>

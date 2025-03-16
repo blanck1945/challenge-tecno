@@ -14,18 +14,22 @@ export default function Courses() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [sortBy, setSortBy] = useState('');
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(3);
 
   const [addCourseShow, setAddCourseShow] = useState<boolean>(false);
   const [error, setError] = useState<string>();
 
   const { authenticatedUser } = useAuth();
   const { data, isLoading, refetch } = useQuery(
-    ['courses', name, description],
+    ['courses', name, description, sortBy, page],
     () =>
       courseService.findAll({
         name: name || undefined,
         description: description || undefined,
-        sortBy,
+        sortBy: sortBy || undefined,
+        page: page || 1,
+        limit: limit || 10,
       }),
     // {
     //   refetchInterval: 1000,
@@ -55,16 +59,29 @@ export default function Courses() {
     setSortBy(e.target.value);
     refetch();
   };
+
+  const handleRefresh = () => {
+    refetch();
+  };
+
   return (
     <Layout header="Manage Courses">
-      {authenticatedUser.role !== 'user' ? (
+      <div className="flex gap-2 mb-5">
+        {authenticatedUser.role !== 'user' ? (
+          <button
+            className="btn  flex gap-2 w-full sm:w-auto justify-center"
+            onClick={() => setAddCourseShow(true)}
+          >
+            <Plus /> Add Course
+          </button>
+        ) : null}
         <button
-          className="btn my-5 flex gap-2 w-full sm:w-auto justify-center bg-[#c1292e]"
-          onClick={() => setAddCourseShow(true)}
+          className="btn  flex gap-2 w-full sm:w-auto justify-center "
+          onClick={handleRefresh}
         >
-          <Plus /> Add Course
+          Refresh
         </button>
-      ) : null}
+      </div>
 
       <div className="table-filter flex items-center justify-between">
         <div className="flex flex-row gap-5">
@@ -85,20 +102,26 @@ export default function Courses() {
         </div>
 
         <div className="flex gap-4">
-          <button className="btn">Filter</button>
           <div>
             <select className="input" onChange={handleSelectChange}>
               <option value="" disabled hidden selected>
                 Sort
               </option>
-              <option value="asc">Ascending</option>
-              <option value="desc">Descending</option>
+              <option value="name:asc">A-Z</option>
+              <option value="name:desc">Z-A</option>
+              <option value="dateCreated:desc">Newest</option>
+              <option value="dateCreated:asc">Oldest</option>
             </select>
           </div>
         </div>
       </div>
 
-      <CoursesTable data={data} isLoading={isLoading} />
+      <CoursesTable
+        data={data}
+        isLoading={isLoading}
+        refetch={refetch}
+        setPage={setPage}
+      />
 
       {/* Add User Modal */}
       <Modal show={addCourseShow}>

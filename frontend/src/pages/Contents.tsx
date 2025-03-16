@@ -18,6 +18,7 @@ export default function Course() {
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [image, setImage] = useState<File | null>(null);
   const [addContentShow, setAddContentShow] = useState<boolean>(false);
   const [error, setError] = useState<string>();
 
@@ -37,14 +38,20 @@ export default function Course() {
         name: name || undefined,
         description: description || undefined,
       }),
-    {
-      refetchInterval: 1000,
-    },
+    // {
+    //   refetchInterval: 1000,
+    // },
   );
 
   const saveCourse = async (createContentRequest: CreateContentRequest) => {
+    const formData = new FormData();
+    formData.append('name', createContentRequest.name);
+    formData.append('description', createContentRequest.description);
+    formData.append('image', createContentRequest.image[0]);
+    formData.append('courseId', id);
+
     try {
-      await contentService.save(id, createContentRequest);
+      await contentService.save(id, formData);
       setAddContentShow(false);
       reset();
       setError(null);
@@ -54,11 +61,7 @@ export default function Course() {
   };
 
   return (
-    <Layout>
-      <h1 className="font-semibold text-3xl mb-5">
-        {!userQuery.isLoading ? `${userQuery.data.name} Contents` : ''}
-      </h1>
-      <hr />
+    <Layout header={`${userQuery?.data?.name} Contents` || ''}>
       {authenticatedUser.role !== 'user' ? (
         <button
           className="btn my-5 flex gap-2 w-full sm:w-auto justify-center"
@@ -89,7 +92,7 @@ export default function Course() {
 
       <ContentsTable data={data} isLoading={isLoading} courseId={id} />
 
-      {/* Add User Modal */}
+      {/* Add Content Modal */}
       <Modal show={addContentShow}>
         <div className="flex">
           <h1 className="font-semibold mb-3">Add Content</h1>
@@ -125,6 +128,16 @@ export default function Course() {
             required
             {...register('description')}
           />
+          <div className="flex flex-col gap-2">
+            <label className="font-semibold">Imagen</label>
+            <input
+              type="file"
+              className="input"
+              accept="image/*"
+              disabled={isSubmitting}
+              {...register('image')}
+            />
+          </div>
           <button className="btn" disabled={isSubmitting}>
             {isSubmitting ? (
               <Loader className="animate-spin mx-auto" />

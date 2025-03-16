@@ -1,3 +1,4 @@
+import Course from '../models/course/Course';
 import CreateUserRequest from '../models/user/CreateUserRequest';
 import UpdateUserRequest from '../models/user/UpdateUserRequest';
 import User from '../models/user/User';
@@ -41,6 +42,10 @@ class UserService {
       isActive,
       password: password || undefined,
     });
+  }
+
+  async getFavorites(id: string): Promise<Course[]> {
+    return (await apiService.get<Course[]>(`/api/users/${id}/favorites`)).data;
   }
 
   async delete(id: string): Promise<void> {

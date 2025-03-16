@@ -66,11 +66,24 @@ export default function ContentsTable({
   return (
     <>
       <div className="table-container">
-        <Table columns={['Name', 'Description', 'Created']}>
+        <Table columns={['Image', 'Name', 'Description', 'Created']}>
           {isLoading
             ? null
-            : data.map(({ id, name, description, dateCreated }) => (
+            : data.map(({ id, name, description, dateCreated, image }) => (
                 <tr key={id}>
+                  <TableItem>
+                    <img
+                      src={
+                        image
+                          ? `data:image/jpeg;base64,${image.data.toString(
+                              'base64',
+                            )}`
+                          : 'https://thumbs.dreamstime.com/b/no-image-vector-symbol-missing-available-icon-gallery-moment-placeholder-253126896.jpg'
+                      }
+                      alt={name}
+                      className="w-16 h-16 object-cover rounded"
+                    />
+                  </TableItem>
                   <TableItem>{name}</TableItem>
                   <TableItem>{description}</TableItem>
                   <TableItem>

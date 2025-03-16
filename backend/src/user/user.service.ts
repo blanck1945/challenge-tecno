@@ -5,6 +5,7 @@ import { ILike } from 'typeorm';
 import { CreateUserDto, UpdateUserDto } from './user.dto';
 import { User } from './user.entity';
 import { UserQuery } from './user.query';
+import { Course } from 'src/course/course.entity';
 
 @Injectable()
 export class UserService {
@@ -95,5 +96,13 @@ export class UserService {
     await User.update(user, {
       refreshToken: refreshToken ? await bcrypt.hash(refreshToken, 10) : null,
     });
+  }
+
+  async getFavorites(userId: string): Promise<Course[]> {
+    const user = await User.findOne({
+      where: { id: userId },
+      relations: ['favorites'],
+    });
+    return user ? user.favorites : [];
   }
 }

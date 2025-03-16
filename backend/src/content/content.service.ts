@@ -10,18 +10,18 @@ import { ContentQuery } from './content.query';
 export class ContentService {
   constructor(private readonly courseService: CourseService) {}
 
-  async save(
-    courseId: string,
-    createContentDto: CreateContentDto,
-  ): Promise<Content> {
-    const { name, description } = createContentDto;
+  async save(courseId: string, createContentDto: any): Promise<Content> {
     const course = await this.courseService.findById(courseId);
-    return await Content.create({
-      name,
-      description,
+
+    const content = Content.create({
+      name: createContentDto.name,
+      description: createContentDto.description,
+      image: createContentDto.image,
       course,
       dateCreated: new Date(),
-    }).save();
+    });
+
+    return await content.save();
   }
 
   async findAll(contentQuery: ContentQuery): Promise<Content[]> {

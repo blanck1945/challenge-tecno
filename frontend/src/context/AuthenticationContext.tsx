@@ -10,14 +10,6 @@ interface AuthContextValue {
 export const AuthenticationContext = createContext<AuthContextValue>(null);
 
 export function AuthenticationProvider({ children }) {
-  // const activeUser = {
-  //   id: 'hhjsjd',
-  //   firstName: 'Ramiro',
-  //   lastName: 'Marra',
-  //   username: 'rami',
-  //   role: 'admin',
-  //   isActive: true,
-  // };
   const [authenticatedUser, setAuthenticatedUser] = useState<User>();
 
   return (

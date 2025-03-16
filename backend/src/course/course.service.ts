@@ -4,6 +4,8 @@ import { ILike } from 'typeorm';
 import { CreateCourseDto, UpdateCourseDto } from './course.dto';
 import { Course } from './course.entity';
 import { CourseQuery } from './course.query';
+import { handleIlike } from 'src/helpers/handleIlike';
+import { handleSort } from 'src/helpers/handleSort';
 
 @Injectable()
 export class CourseService {
@@ -14,19 +16,28 @@ export class CourseService {
     }).save();
   }
 
-  async findAll(courseQuery: CourseQuery): Promise<Course[]> {
-    Object.keys(courseQuery).forEach((key) => {
-      if (courseQuery[key] !== 'sortBy') {
-        courseQuery[key] = ILike(`%${courseQuery[key]}%`);
-      } 
+  async findAll(courseQuery: CourseQuery): Promise<any> {
+    const { sortBy, page, limit } = courseQuery;
+
+    const whereQuery = handleIlike(courseQuery, ['name', 'description']);
+    const orderBy = handleSort(sortBy, {
+      name: 'ASC',
+      description: 'ASC',
     });
-    return await Course.find({
-      where: courseQuery,
-      order: {
-        name: courseQuery.sortBy === 'name' ? 'ASC' : 'DESC',
-        description: 'ASC',
-      },
+
+    const [courses, total] = await Course.findAndCount({
+      where: whereQuery,
+      order: orderBy,
+      skip: (page - 1) * limit,
+      take: limit,
     });
+
+    return {
+      courses,
+      total,
+      page: +page,
+      lastPage: Math.ceil(total / 3),
+    };
   }
 
   async findById(id: string): Promise<Course> {
@@ -42,7 +53,11 @@ export class CourseService {
 
   async update(id: string, updateCourseDto: UpdateCourseDto): Promise<Course> {
     const course = await this.findById(id);
-    return await Course.create({ id: course.id, ...updateCourseDto }).save();
+    return await Course.create({
+      id: course.id,
+      ...updateCourseDto,
+      dateUpdated: new Date(),
+    }).save();
   }
 
   async delete(id: string): Promise<string> {
@@ -53,5 +68,21 @@ export class CourseService {
 
   async count(): Promise<number> {
     return await Course.count();
+  }
+
+  async latest(): Promise<Course[]> {
+    return await Course.find({
+      take: 3,
+      order: {
+        dateCreated: 'DESC',
+      },
+    });
+  }
+
+  async latestUpdated(): Promise<Course[]> {
+    return await Course.find({
+      take: 2,
+      order: { dateUpdated: 'ASC' },
+    });
   }
 }

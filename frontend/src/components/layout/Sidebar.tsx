@@ -22,11 +22,23 @@ export default function Sidebar({ className }: SidebarProps) {
   };
 
   return (
-    <div className={'sidebar ' + className}>
-      <Link to="/" className="no-underline text-black">
-        <h1 className="font-semibold text-center">Carna Project</h1>
+    <div
+      style={{
+        backgroundImage: "url('/assets/sidemenu-bg.jpg')",
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}
+      className={'sidebar ' + className}
+    >
+      <div className="absolute inset-0 bg-black opacity-[0.55]"></div>
+      <Link to="/" className="no-underline text-black relative z-10">
+        <img
+          className="w-full px-4"
+          src="assets/urbano-logo-white.png"
+          alt="urbano-logo"
+        />
       </Link>
-      <nav className="mt-5 flex flex-col gap-3 flex-grow">
+      <nav className="mt-24 flex flex-col gap-8 flex-grow px-6 relative z-10">
         <SidebarItem to="/">
           <Home /> Dashboard
         </SidebarItem>

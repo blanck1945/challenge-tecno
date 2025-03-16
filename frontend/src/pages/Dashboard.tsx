@@ -5,11 +5,17 @@ import Layout from '../components/layout';
 import statsService from '../services/StatsService';
 
 export default function Dashboard() {
-  const { data, isLoading } = useQuery('stats', statsService.getStats);
+  // const { data, isLoading } = useQuery('stats', statsService.getStats);
+
+  const isLoading = false;
+  const data = {
+    numberOfUsers: 10,
+    numberOfCourses: 20,
+    numberOfContents: 30,
+  };
 
   return (
     <Layout>
-      <h1 className="font-semibold text-3xl mb-5">Dashboard</h1>
       <hr />
       <div className="mt-5 flex flex-col gap-5">
         {!isLoading ? (

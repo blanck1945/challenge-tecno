@@ -11,10 +11,13 @@ export default function UpdateProfile() {
   const { authenticatedUser } = useAuth();
   const [error, setError] = useState<string>();
 
-  const { data, isLoading, refetch } = useQuery(
-    `user-${authenticatedUser.id}`,
-    () => userService.findOne(authenticatedUser.id),
-  );
+  // const { data, isLoading, refetch } = useQuery(
+  //   `user-${authenticatedUser.id}`,
+  //   () => userService.findOne(authenticatedUser.id),
+  // );
+
+  const data = authenticatedUser;
+  const isLoading = false;
 
   const {
     register,
@@ -31,7 +34,7 @@ export default function UpdateProfile() {
       await userService.update(authenticatedUser.id, updateUserRequest);
       setError(null);
       setValue('password', '');
-      refetch();
+      // refetch();
     } catch (error) {
       setError(error.response.data.message);
     }

@@ -1,0 +1,51 @@
+version: "3.8"
+
+services:
+  database:
+    image: postgres:alpine
+    container_name: database
+    environment:
+      POSTGRES_DB: carna-database
+      POSTGRES_USER: carna
+      POSTGRES_PASSWORD: IjSJmKN1fc#DZBL*NHbVoxIh65JvsFFDO@so
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+  backend:
+    container_name: backend
+    build:
+      context: backend
+      dockerfile: Dockerfile.dev  # Utilizar un Dockerfile de desarrollo
+    depends_on:
+      - database
+    environment:
+      DATABASE_HOST: database
+      DATABASE_PORT: 5432
+      DATABASE_USERNAME: carna
+      DATABASE_PASSWORD: IjSJmKN1fc#DZBL*NHbVoxIh65JvsFFDO@so
+      DATABASE_NAME: "carna-database"
+      JWT_SECRET: 4125442A472D4B6150645367556B58703273357638792F423F4528482B4D6251
+      JWT_REFRESH_SECRET: 576E5A7134743777217A25432A462D4A614E645267556B58703273357538782F
+    volumes:
+      - ./backend:/app  # Montar el código fuente local para hot-reloading
+    ports:
+      - "5000:5000"
+    command: ["yarn", "start:dev"]  
+
+  frontend:
+    container_name: frontend
+    build:
+      context: frontend
+      dockerfile: Dockerfile.dev  # Utiliza el Dockerfile de desarrollo
+    ports:
+      - "3000:3000"  # Exponer el puerto 3000 para acceso a la app de React
+    volumes:
+      - ./frontend:/app  # Montar los archivos locales para hot-reloading
+    command: ["yarn", "start"]  # Ejecutar craco start
+    environment:
+      - CHOKIDAR_USEPOLLING=true  # Activar polling para detectar cambios en archivos
+    depends_on:
+      - backend
+
+volumes:
+  pg_data:

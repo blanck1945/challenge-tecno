@@ -10,6 +10,7 @@ class UserService {
   }
 
   async findAll(courseQuery: CourseQuery): Promise<Course[]> {
+    console.log('courseQuery', courseQuery);
     return (
       await apiService.get<Course[]>('/api/courses', { params: courseQuery })
     ).data;

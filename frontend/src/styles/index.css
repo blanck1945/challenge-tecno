@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+body {
+  font-family: 'Roboto', 'Helvetica', 'Helvetica Neue', 'Nunito Sans', sans-serif;
+}
+
 @layer base {
   html,
   body,
@@ -24,7 +28,7 @@
 
 @layer components {
   .btn {
-    @apply p-3 bg-blue-500 rounded-md focus:outline-none text-white;
+    @apply p-3 bg-[#c1292e] rounded-md focus:outline-none text-white;
     @apply hover:bg-blue-700 transition-all;
     @apply focus:ring disabled:opacity-50;
   }

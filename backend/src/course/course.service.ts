@@ -16,12 +16,14 @@ export class CourseService {
 
   async findAll(courseQuery: CourseQuery): Promise<Course[]> {
     Object.keys(courseQuery).forEach((key) => {
-      courseQuery[key] = ILike(`%${courseQuery[key]}%`);
+      if (courseQuery[key] !== 'sortBy') {
+        courseQuery[key] = ILike(`%${courseQuery[key]}%`);
+      } 
     });
     return await Course.find({
       where: courseQuery,
       order: {
-        name: 'ASC',
+        name: courseQuery.sortBy === 'name' ? 'ASC' : 'DESC',
         description: 'ASC',
       },
     });

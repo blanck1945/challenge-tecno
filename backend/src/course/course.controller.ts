@@ -42,6 +42,7 @@ export class CourseController {
 
   @Get()
   async findAll(@Query() courseQuery: CourseQuery): Promise<Course[]> {
+    console.log('courseQuery', courseQuery);
     return await this.courseService.findAll(courseQuery);
   }
 

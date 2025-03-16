@@ -1,0 +1,16 @@
+# Etapa de desarrollo
+FROM node:14-alpine
+
+WORKDIR /app
+
+# Copiar los archivos de código
+COPY . .
+
+# Instalar las dependencias
+RUN yarn
+
+# Exponer el puerto de desarrollo
+EXPOSE 3000
+
+# Usar craco start para el desarrollo con hot-reloading
+CMD ["yarn", "start"]

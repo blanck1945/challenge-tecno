@@ -1,0 +1,10 @@
+1 dia
+
+- Levantar ambiente de PROD con docker
+- - Problemas con el ambiente de node - se bajo a la version 14
+- - Problemas de configuracion con JWT - se agrego variables de entorno
+- - Se levanto el ambiente correctamente
+
+- Cambios en el frontend para agregar colores - fonts - estilos
+
+- Crear un ambiente dev para levantar el proyecto en local con docker

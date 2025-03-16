@@ -1,32 +1,42 @@
-FROM node:alpine as build
+# Etapa de construcción
+FROM node:14-alpine AS build
 
 WORKDIR /app
 
+# Copiar package.json y yarn.lock antes para aprovechar la cache de Docker
 COPY package.json .
 COPY yarn.lock .
 
+# Instalar todas las dependencias
 RUN yarn
 
+# Copiar el resto del código fuente
 COPY . .
 
+# Ejecutar la construcción de la aplicación
 RUN yarn build
 
-#---
-
-FROM node:alpine
+# Etapa final
+FROM node:14-alpine
 
 WORKDIR /app
 
+# Establecer la variable de entorno NODE_ENV como producción
 ENV NODE_ENV=production
 
+# Copiar los archivos necesarios para producción
 COPY package.json .
 COPY yarn.lock .
 COPY ormconfig.js .
 
+# Instalar solo las dependencias de producción
 RUN yarn install --production
 
+# Copiar la carpeta dist desde la etapa de construcción (si se ha generado correctamente)
 COPY --from=build /app/dist ./dist
 
+# Exponer el puerto 5000 
 EXPOSE 5000
 
+# Configurar el punto de entrada para iniciar la aplicación en producción
 ENTRYPOINT [ "yarn", "start:prod" ]

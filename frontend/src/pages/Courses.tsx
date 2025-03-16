@@ -13,21 +13,23 @@ import courseService from '../services/CourseService';
 export default function Courses() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [sortBy, setSortBy] = useState('');
 
   const [addCourseShow, setAddCourseShow] = useState<boolean>(false);
   const [error, setError] = useState<string>();
 
   const { authenticatedUser } = useAuth();
-  const { data, isLoading } = useQuery(
+  const { data, isLoading, refetch } = useQuery(
     ['courses', name, description],
     () =>
       courseService.findAll({
         name: name || undefined,
         description: description || undefined,
+        sortBy,
       }),
-    {
-      refetchInterval: 1000,
-    },
+    // {
+    //   refetchInterval: 1000,
+    // },
   );
 
   const {
@@ -48,20 +50,23 @@ export default function Courses() {
     }
   };
 
+  const handleSelectChange = (e) => {
+    console.log(e.target.value);
+    setSortBy(e.target.value);
+    refetch();
+  };
   return (
-    <Layout>
-      <h1 className="font-semibold text-3xl mb-5">Manage Courses</h1>
-      <hr />
+    <Layout header="Manage Courses">
       {authenticatedUser.role !== 'user' ? (
         <button
-          className="btn my-5 flex gap-2 w-full sm:w-auto justify-center"
+          className="btn my-5 flex gap-2 w-full sm:w-auto justify-center bg-[#c1292e]"
           onClick={() => setAddCourseShow(true)}
         >
           <Plus /> Add Course
         </button>
       ) : null}
 
-      <div className="table-filter">
+      <div className="table-filter flex items-center justify-between">
         <div className="flex flex-row gap-5">
           <input
             type="text"
@@ -77,6 +82,19 @@ export default function Courses() {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
+        </div>
+
+        <div className="flex gap-4">
+          <button className="btn">Filter</button>
+          <div>
+            <select className="input" onChange={handleSelectChange}>
+              <option value="" disabled hidden selected>
+                Sort
+              </option>
+              <option value="asc">Ascending</option>
+              <option value="desc">Descending</option>
+            </select>
+          </div>
         </div>
       </div>
 

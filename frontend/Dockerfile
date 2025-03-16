@@ -1,4 +1,5 @@
-FROM node:alpine as build
+# Etapa de construcción
+FROM node:14-alpine AS build  
 
 WORKDIR /app
 
@@ -9,6 +10,7 @@ RUN yarn build
 
 #---
 
+# Etapa de producción
 FROM nginx:alpine
 
 COPY --from=build /app/build/ /var/www

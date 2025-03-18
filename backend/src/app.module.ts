@@ -7,6 +7,10 @@ import { ContentModule } from './content/content.module';
 import { CourseModule } from './course/course.module';
 import { StatsModule } from './stats/stats.module';
 import { UserModule } from './user/user.module';
+import { RankingModule } from './ranking/ranking.module';
+import { UserCourseEnrollmentModule } from './enrollment/enrollment.module';
+import { MailService } from './mail/mail.service';
+import { MailController } from './mail/mail.controller';
 
 @Module({
   imports: [
@@ -17,8 +21,10 @@ import { UserModule } from './user/user.module';
     CourseModule,
     ContentModule,
     StatsModule,
+    RankingModule,
+    UserCourseEnrollmentModule,
   ],
-  controllers: [],
-  providers: [],
+  controllers: [MailController],
+  providers: [MailService],
 })
 export class AppModule {}

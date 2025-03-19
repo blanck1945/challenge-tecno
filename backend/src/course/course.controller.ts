@@ -44,7 +44,9 @@ export class CourseController {
   }
 
   @Get()
-  async findAll(@Query() courseQuery: CourseQuery): Promise<any> {
+  async findAll(
+    @Query() courseQuery: CourseQuery,
+  ): Promise<Pagination<Course>> {
     return await this.courseService.findAll(courseQuery);
   }
 
@@ -76,11 +78,7 @@ export class CourseController {
     @Body() createContentDto: any,
     @UploadedFile() file = null,
   ): Promise<Content> {
-    if (file) {
-      createContentDto.image = file.buffer;
-    }
-
-    return await this.contentService.save(id, createContentDto);
+    return await this.contentService.save(id, createContentDto, file);
   }
 
   @Get('/:id/contents')

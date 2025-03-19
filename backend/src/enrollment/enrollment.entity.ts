@@ -1,4 +1,3 @@
-// src/user-course-enrollment/user-course-enrollment.entity.ts
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -6,6 +5,8 @@ import {
   JoinColumn,
   Column,
   BaseEntity,
+  CreateDateColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { User } from '../user/user.entity';
 import { Course } from '../course/course.entity';
@@ -14,12 +15,6 @@ import { Course } from '../course/course.entity';
 export class UserCourseEnrollment extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-
-  @Column()
-  userId: string;
-
-  @Column()
-  courseId: string;
 
   @Column({ default: true })
   enrolled: boolean;
@@ -31,4 +26,10 @@ export class UserCourseEnrollment extends BaseEntity {
   @ManyToOne(() => Course, (course) => course.enrollments)
   @JoinColumn({ name: 'courseId' })
   course: Course;
+
+  @CreateDateColumn({ type: 'timestamp with time zone' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ type: 'timestamp with time zone' })
+  updatedAt: Date;
 }

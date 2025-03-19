@@ -1,31 +1,44 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
-import { RankingService } from './ranking.service';
-import { Ranking } from './ranking.entity';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
+import { RankingService } from './review.service';
 import { Roles } from 'src/decorators/roles.decorator';
 import { Role } from 'src/enums/role.enum';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtGuard } from 'src/auth/guards/jwt.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
-import { CreateRankingDto } from './ranking.dto';
+import { CreateRankingDto } from './review.dto';
+import { RankingQuery } from './review.query';
 
-@Controller('rankings')
+@Controller('reviews')
+@ApiBearerAuth()
 @UseGuards(JwtGuard, RolesGuard)
-@ApiTags('Rankings')
+@ApiTags('Reviews')
 export class RankingController {
   constructor(private readonly rankingService: RankingService) {}
 
   @Get()
-  async getRanking() {
-    return this.rankingService.getRanking();
+  @Roles(Role.Admin)
+  async getReview(@Query() rankingQuery: RankingQuery) {
+    return this.rankingService.getRanking(rankingQuery);
   }
 
   @Get(':id')
-  async getRankingById(@Param('id') id: string) {
+  @Roles(Role.User)
+  async getReviewById(@Param('id') id: string) {
     return this.rankingService.getRankingById(id);
   }
 
   @Get(':courseId/:userId')
-  async getUserHasRankThisCourse(
+  @Roles(Role.User)
+  async getUserHasReviewedThisCourse(
     @Param('courseId') courseId: string,
     @Param('userId') userId: string,
   ) {
@@ -34,7 +47,7 @@ export class RankingController {
 
   @Post(':courseId/:userId')
   @Roles(Role.User)
-  async createRanking(
+  async createReview(
     @Param('courseId') courseId: string,
     @Param('userId') userId: string,
     @Body() createRankingDto: CreateRankingDto,
@@ -44,5 +57,11 @@ export class RankingController {
       userId,
       createRankingDto,
     );
+  }
+
+  @Delete(':id')
+  @Roles(Role.User, Role.Editor, Role.Admin)
+  async deleteReview(@Param('id') id: string) {
+    return this.rankingService.delete(id);
   }
 }

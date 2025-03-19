@@ -1,48 +1,61 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { Favorite } from './favorites.entity';
-import { Course } from 'src/course/course.entity';
 
 @Injectable()
 export class FavoritesService {
+  constructor(
+    @InjectRepository(Favorite)
+    private readonly favoriteRepository: Repository<Favorite>,
+  ) {}
+
   async getFavorites(userId: string): Promise<Favorite[]> {
-    const favorites = await Favorite.find({
-      where: { userId },
+    const favorites = await this.favoriteRepository.find({
+      where: { user: userId },
       relations: ['course'],
     });
-    console.log('FAVORITES', favorites);
     return favorites;
   }
 
-  async addFavorite(userId: string, courseId: string): Promise<void> {
-    console.log(userId, courseId);
-    const favorite = await Favorite.findOne({
-      where: { userId, courseId },
+  async save(userId: string, courseId: string): Promise<Favorite> {
+    const favorite = await this.favoriteRepository.findOne({
+      where: { user: userId, course: courseId },
     });
 
     if (favorite) {
-      throw new Error('Favorite already exists');
+      throw new HttpException(
+        'Favorite already exists',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
-    const fav = await Favorite.create({ userId, courseId });
-    await fav.save();
+    const fav = this.favoriteRepository.create({
+      user: { id: userId },
+      course: { id: courseId },
+    });
+
+    return await this.favoriteRepository.save(fav);
   }
 
-  async removeFavorite(userId: string, courseId: string): Promise<void> {
-    const favorite = await Favorite.findOne({
-      where: { userId, courseId },
+  async delete(userId: string, courseId: string): Promise<string> {
+    const favorite = await this.favoriteRepository.findOne({
+      where: { user: userId, course: courseId },
     });
 
     if (!favorite) {
-      throw new Error('Favorite not found');
+      throw new HttpException('Favorite not found', HttpStatus.NOT_FOUND);
     }
 
-    await favorite.remove();
+    await this.favoriteRepository.delete(favorite.id);
+    return favorite.id;
   }
 
   async isFavorite(userId: string, courseId: string): Promise<boolean> {
-    const favorite = await Favorite.findOne({
-      where: { userId, courseId },
+    const favorite = await this.favoriteRepository.findOne({
+      where: { user: userId, course: courseId },
     });
+
     return favorite ? true : false;
   }
 }

@@ -1,4 +1,3 @@
-// src/user-course-enrollment/user-course-enrollment.controller.ts
 import {
   Controller,
   Post,
@@ -12,6 +11,8 @@ import { EnrolledStatus } from 'src/enums/enrolled.enum';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtGuard } from 'src/auth/guards/jwt.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { Roles } from 'src/decorators/roles.decorator';
+import { Role } from 'src/enums/role.enum';
 
 @Controller('enrollments')
 @ApiBearerAuth()
@@ -23,6 +24,7 @@ export class UserCourseEnrollmentController {
   ) {}
 
   @Post(':userId/:courseId')
+  @Roles(Role.User)
   async enrollUserInCourse(
     @Param('userId') userId: string,
     @Param('courseId') courseId: string,
@@ -31,6 +33,7 @@ export class UserCourseEnrollmentController {
   }
 
   @Post(':userId/:courseId/reenroll')
+  @Roles(Role.User)
   async reenrollUserInCourse(
     @Param('userId') userId: string,
     @Param('courseId') courseId: string,
@@ -39,6 +42,7 @@ export class UserCourseEnrollmentController {
   }
 
   @Delete(':userId/:courseId')
+  @Roles(Role.User)
   async unenrollUserFromCourse(
     @Param('userId') userId: string,
     @Param('courseId') courseId: string,
@@ -47,11 +51,13 @@ export class UserCourseEnrollmentController {
   }
 
   @Get(':userId')
+  @Roles(Role.User)
   async getEnrolledCourses(@Param('userId') userId: string) {
     return this.enrollmentService.getEnrolledCourses(userId);
   }
 
   @Get(':userId/:courseId/is-enrolled')
+  @Roles(Role.User)
   async isUserEnrolled(
     @Param('userId') userId: string,
     @Param('courseId') courseId: string,

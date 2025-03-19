@@ -6,9 +6,17 @@ import { User } from './user.entity';
 import { UserQuery } from './user.query';
 import { Pagination } from 'src/interfaces/pagination.interface';
 import { handleIlike } from 'src/helpers/handleIlike';
+import { Order } from 'src/enums/order.enum';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class UserService {
+  constructor(
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+  ) {}
+
   async save(createUserDto: CreateUserDto): Promise<User> {
     const user = await this.findByUsername(createUserDto.username);
 
@@ -21,7 +29,8 @@ export class UserService {
 
     const { password } = createUserDto;
     createUserDto.password = await bcrypt.hash(password, 10);
-    return User.create(createUserDto).save();
+    const newUser = this.userRepository.create(createUserDto);
+    return this.userRepository.save(newUser);
   }
 
   async findAll(userQuery: UserQuery): Promise<Pagination<User>> {
@@ -29,11 +38,11 @@ export class UserService {
 
     const whereQuery = handleIlike(rest, ['firstName', 'lastName', 'username']);
 
-    const [users, total] = await User.findAndCount({
+    const [users, total] = await this.userRepository.findAndCount({
       where: { ...rest, ...whereQuery },
       order: {
-        firstName: 'ASC',
-        lastName: 'ASC',
+        firstName: Order.ASC,
+        lastName: Order.ASC,
       },
       skip: (page - 1) * limit,
       take: limit,
@@ -48,7 +57,7 @@ export class UserService {
   }
 
   async findById(id: string): Promise<User> {
-    const user = await User.findOne(id);
+    const user = await this.userRepository.findOne(id);
 
     if (!user) {
       throw new HttpException(
@@ -61,7 +70,7 @@ export class UserService {
   }
 
   async findByUsername(username: string): Promise<User> {
-    return User.findOne({ where: { username } });
+    return this.userRepository.findOne({ where: { username } });
   }
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
@@ -85,28 +94,38 @@ export class UserService {
       }
     }
 
-    return User.create({ id, ...updateUserDto }).save();
+    const updatedUser = this.userRepository.create({ id, ...updateUserDto });
+    return this.userRepository.save(updatedUser);
   }
 
   async delete(id: string): Promise<string> {
-    await User.delete(await this.findById(id));
+    const user = await this.findById(id);
+
+    if (!user) {
+      throw new HttpException(
+        `Could not find user with matching id ${id}`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    await this.userRepository.delete(user);
     return id;
   }
 
   async count(): Promise<number> {
-    return await User.count();
+    return await this.userRepository.count();
   }
 
   /* Hash the refresh token and save it to the database */
   async setRefreshToken(id: string, refreshToken: string): Promise<void> {
     const user = await this.findById(id);
-    await User.update(user, {
+    await this.userRepository.update(user, {
       refreshToken: refreshToken ? await bcrypt.hash(refreshToken, 10) : null,
     });
   }
 
   async getFavorites(userId: string): Promise<User> {
-    const user = await User.findOne({
+    const user = await this.userRepository.findOne({
       where: { id: userId },
       relations: ['favorites'],
     });

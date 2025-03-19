@@ -10,19 +10,13 @@ import {
 import { Course } from '../course/course.entity';
 import { User } from 'src/user/user.entity';
 
-@Entity('rankings')
-export class Ranking extends BaseEntity {
+@Entity('reviews')
+export class Review extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column()
   rating: number;
-
-  @Column()
-  courseId: string;
-
-  @Column()
-  userId: string;
 
   @Column({ default: '' })
   message: string;

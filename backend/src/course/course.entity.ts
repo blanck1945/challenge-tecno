@@ -1,15 +1,17 @@
 import {
   BaseEntity,
   Column,
+  CreateDateColumn,
   Entity,
   ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 
 import { Content } from '../content/content.entity';
 import { User } from 'src/user/user.entity';
-import { Ranking } from 'src/ranking/ranking.entity';
+import { Review } from 'src/review/review.entity';
 import { UserCourseEnrollment } from 'src/enrollment/enrollment.entity';
 import { CourseLanguages } from 'src/enums/courseLanguages.enum';
 import { Favorite } from 'src/favorites/favorites.entity';
@@ -34,17 +36,12 @@ export class Course extends BaseEntity {
 
   @Column({ default: 0 })
   averageRating: number;
-  @Column()
-  dateCreated: Date;
-
-  @Column({ nullable: true })
-  dateUpdated: Date | null;
 
   @OneToMany(() => Content, (content) => content.course)
   contents: Content[];
 
-  @OneToMany(() => Ranking, (ranking) => ranking.course)
-  rankings: Ranking[];
+  @OneToMany(() => Review, (review) => review.course)
+  rankings: Review[];
 
   @OneToMany(() => Favorite, (favorite) => favorite.course)
   favorites: Favorite[];
@@ -54,4 +51,10 @@ export class Course extends BaseEntity {
 
   @OneToMany(() => UserCourseEnrollment, (enrollment) => enrollment.course)
   enrollments: UserCourseEnrollment[];
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

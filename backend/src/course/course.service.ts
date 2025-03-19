@@ -6,16 +6,22 @@ import { CourseQuery } from './course.query';
 import { handleIlike } from 'src/helpers/handleIlike';
 import { handleSort } from 'src/helpers/handleSort';
 import { Pagination } from 'src/interfaces/pagination.interface';
-import { Favorite } from 'src/favorites/favorites.entity';
 import { Order } from 'src/enums/order.enum';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class CourseService {
+  constructor(
+    @InjectRepository(Course)
+    private readonly courseRepository: Repository<Course>,
+  ) {}
+
   async save(createCourseDto: CreateCourseDto): Promise<Course> {
-    return await Course.create({
+    const course = this.courseRepository.create({
       ...createCourseDto,
-      dateCreated: new Date(),
-    }).save();
+    });
+    return await this.courseRepository.save(course);
   }
 
   async findAll(courseQuery: CourseQuery): Promise<Pagination<Course>> {
@@ -27,7 +33,7 @@ export class CourseService {
       description: Order.ASC,
     });
 
-    const [courses, total] = await Course.findAndCount({
+    const [courses, total] = await this.courseRepository.findAndCount({
       where: {
         ...whereQuery,
         ...(courseQuery.language && { language: courseQuery.language }),
@@ -45,8 +51,8 @@ export class CourseService {
     };
   }
 
-  async findById(id: string): Promise<any> {
-    const course = await Course.findOne(id);
+  async findById(id: string): Promise<Course> {
+    const course = await this.courseRepository.findOne(id);
     if (!course) {
       throw new HttpException(
         `Could not find course with matching id ${id}`,
@@ -54,45 +60,50 @@ export class CourseService {
       );
     }
 
-    const favorites = await Favorite.findOne({
-      where: { courseId: id },
-    });
-
-    return { ...course, isFavorite: favorites ? true : false };
+    return course;
   }
 
   async update(id: string, updateCourseDto: UpdateCourseDto): Promise<Course> {
     const course = await this.findById(id);
-    return await Course.create({
+    const updatedCourse = this.courseRepository.create({
       id: course.id,
       ...updateCourseDto,
-      dateUpdated: new Date(),
-    }).save();
+      updatedAt: new Date(),
+    });
+    return await this.courseRepository.save(updatedCourse);
   }
 
   async delete(id: string): Promise<string> {
     const course = await this.findById(id);
-    await Course.delete(course);
+
+    if (!course) {
+      throw new HttpException(
+        `Course with id ${id} not found`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    await this.courseRepository.delete(course.id);
     return id;
   }
 
   async count(): Promise<number> {
-    return await Course.count();
+    return await this.courseRepository.count();
   }
 
   async latest(): Promise<Course[]> {
-    return await Course.find({
+    return await this.courseRepository.find({
       take: 3,
       order: {
-        dateCreated: 'DESC',
+        createdAt: Order.DESC,
       },
     });
   }
 
   async latestUpdated(): Promise<Course[]> {
-    return await Course.find({
+    return await this.courseRepository.find({
       take: 2,
-      order: { dateUpdated: 'ASC' },
+      order: { updatedAt: Order.ASC },
     });
   }
 }

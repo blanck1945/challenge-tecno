@@ -1,8 +1,9 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { ILike } from 'typeorm';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 import { CourseService } from '../course/course.service';
-import { CreateContentDto, UpdateContentDto } from './content.dto';
+import { UpdateContentDto } from './content.dto';
 import { Content } from './content.entity';
 import { ContentQuery } from './content.query';
 import { UploadService } from 'src/upload/upload.service';
@@ -16,26 +17,31 @@ export class ContentService {
   constructor(
     private readonly courseService: CourseService,
     private readonly uploadService: UploadService,
+    @InjectRepository(Content)
+    private readonly contentRepository: Repository<Content>,
   ) {}
 
-  async save(courseId: string, createContentDto: any): Promise<Content> {
+  async save(
+    courseId: string,
+    createContentDto: any,
+    file: any,
+  ): Promise<Content> {
     const course = await this.courseService.findById(courseId);
 
-    if (createContentDto.image) {
-      createContentDto.image = await this.uploadService.uploadFile(
-        createContentDto.image,
-      );
+    if (file) {
+      createContentDto.image = (
+        await this.uploadService.uploadFile(file.buffer)
+      ).file;
     }
 
-    const content = Content.create({
+    const content = this.contentRepository.create({
       name: createContentDto.name,
       description: createContentDto.description,
       image: createContentDto.image,
       course,
-      dateCreated: new Date(),
     });
 
-    return await content.save();
+    return await this.contentRepository.save(content);
   }
 
   async findAll(contentQuery: ContentQuery): Promise<Pagination<Content>> {
@@ -47,7 +53,7 @@ export class ContentService {
     });
     const where = handleIlike(contentQuery, ['name', 'description']);
 
-    const [contents, total] = await Content.findAndCount({
+    const [contents, total] = await this.contentRepository.findAndCount({
       where,
       order,
       skip: (page - 1) * limit,
@@ -63,7 +69,7 @@ export class ContentService {
   }
 
   async findById(id: string): Promise<Content> {
-    const content = await Content.findOne(id);
+    const content = await this.contentRepository.findOne(id);
 
     if (!content) {
       throw new HttpException(
@@ -76,7 +82,9 @@ export class ContentService {
   }
 
   async findByCourseIdAndId(courseId: string, id: string): Promise<Content> {
-    const content = await Content.findOne({ where: { courseId, id } });
+    const content = await this.contentRepository.findOne({
+      where: { courseId, id },
+    });
     if (!content) {
       throw new HttpException(
         `Could not find content with matching id ${id}`,
@@ -99,7 +107,7 @@ export class ContentService {
 
     const where = handleIlike(rest, ['name', 'description']);
 
-    const [contents, total] = await Content.findAndCount({
+    const [contents, total] = await this.contentRepository.findAndCount({
       where: { courseId, ...where, ...rest },
       order,
       skip: (page - 1) * limit,
@@ -128,16 +136,27 @@ export class ContentService {
       ).file;
     }
 
-    return await Content.create({ id: content.id, ...updateContentDto }).save();
+    return await this.contentRepository.save({
+      id: content.id,
+      ...updateContentDto,
+    });
   }
 
   async delete(courseId: string, id: string): Promise<string> {
     const content = await this.findByCourseIdAndId(courseId, id);
-    await Content.delete(content);
+
+    if (!content) {
+      throw new HttpException(
+        `Could not find content with matching id ${id}`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    await this.contentRepository.delete(content);
     return id;
   }
 
   async count(): Promise<number> {
-    return await Content.count();
+    return await this.contentRepository.count();
   }
 }

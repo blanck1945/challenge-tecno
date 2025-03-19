@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { RankingController } from './ranking.controller';
+import { RankingController } from './review.controller';
 
 describe('RankingController', () => {
   let controller: RankingController;

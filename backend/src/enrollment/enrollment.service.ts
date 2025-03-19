@@ -1,4 +1,3 @@
-// src/user-course-enrollment/user-course-enrollment.service.ts
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -43,7 +42,7 @@ export class UserCourseEnrollmentService {
     courseId: string,
   ): Promise<UserCourseEnrollment> {
     const enrollment = await this.enrollmentRepository.findOne({
-      where: { userId, courseId },
+      where: { user: userId, course: courseId },
     });
 
     if (!enrollment) {
@@ -59,7 +58,7 @@ export class UserCourseEnrollmentService {
     courseId: string,
   ): Promise<void> {
     const enrollment = await this.enrollmentRepository.findOne({
-      where: { userId, courseId },
+      where: { user: userId, course: courseId },
     });
 
     if (!enrollment) {
@@ -72,16 +71,16 @@ export class UserCourseEnrollmentService {
 
   async getEnrolledCourses(userId: string): Promise<string[]> {
     const enrollments = await UserCourseEnrollment.find({
-      where: { userId, enrolled: true },
-      select: ['courseId'],
+      where: { user: userId, enrolled: true },
+      select: ['course'],
     });
 
-    return enrollments.map((e) => e.courseId);
+    return enrollments.map((e) => e.course.id);
   }
 
   async getCoursesNotEnrolled(userId: string): Promise<Course[]> {
     const enrollments = await this.enrollmentRepository.find({
-      where: { userId, enrolled: false },
+      where: { user: userId, enrolled: false },
       relations: ['course'],
     });
     return enrollments.map((enrollment) => enrollment.course);
@@ -92,7 +91,7 @@ export class UserCourseEnrollmentService {
     courseId: string,
   ): Promise<{ enrolled: EnrolledStatus }> {
     const enrollment = await this.enrollmentRepository.findOne({
-      where: { userId, courseId },
+      where: { user: userId, course: courseId },
     });
 
     if (!enrollment) {

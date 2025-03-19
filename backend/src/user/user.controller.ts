@@ -64,24 +64,6 @@ export class UserController {
     return this.userService.getFavorites(userId);
   }
 
-  @Post(':id/favorites')
-  async addFavorite(
-    @Param('id') userId: string,
-    @Body() body: { courseId: string },
-  ): Promise<void> {
-    console.log('addFavorite');
-    console.log(userId, body.courseId);
-    return this.favoriteService.addFavorite(userId, body.courseId);
-  }
-
-  @Delete(':id/favorites/:courseId')
-  async removeFavorite(
-    @Param('id') userId: string,
-    @Param('courseId') courseId: string,
-  ): Promise<void> {
-    return this.favoriteService.removeFavorite(userId, courseId);
-  }
-
   @Put('/:id')
   @UseGuards(UserGuard)
   async update(

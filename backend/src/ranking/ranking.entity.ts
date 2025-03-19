@@ -4,7 +4,6 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -17,7 +16,16 @@ export class Ranking extends BaseEntity {
   id: string;
 
   @Column()
-  score: number;
+  rating: number;
+
+  @Column()
+  courseId: string;
+
+  @Column()
+  userId: string;
+
+  @Column({ default: '' })
+  message: string;
 
   @ManyToOne(() => User, (user) => user.rankings)
   @JoinColumn({ name: 'userId' })

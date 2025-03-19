@@ -4,4 +4,5 @@ export class CourseQuery {
   sortBy?: string;
   page?: number;
   limit?: number;
+  language?: string;
 }

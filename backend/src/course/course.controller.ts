@@ -15,7 +15,6 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { JwtGuard } from '../auth/guards/jwt.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
-import { CreateContentDto, UpdateContentDto } from '../content/content.dto';
 import { Content } from '../content/content.entity';
 import { ContentQuery } from '../content/content.query';
 import { ContentService } from '../content/content.service';
@@ -26,6 +25,7 @@ import { Course } from './course.entity';
 import { CourseQuery } from './course.query';
 import { CourseService } from './course.service';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Pagination } from 'src/interfaces/pagination.interface';
 
 @Controller('courses')
 @ApiBearerAuth()
@@ -74,7 +74,7 @@ export class CourseController {
   async saveContent(
     @Param('id') id: string,
     @Body() createContentDto: any,
-    @UploadedFile() file,
+    @UploadedFile() file = null,
   ): Promise<Content> {
     if (file) {
       createContentDto.image = file.buffer;
@@ -87,18 +87,25 @@ export class CourseController {
   async findAllContentsByCourseId(
     @Param('id') id: string,
     @Query() contentQuery: ContentQuery,
-  ): Promise<Content[]> {
+  ): Promise<Pagination<Content>> {
     return await this.contentService.findAllByCourseId(id, contentQuery);
   }
 
   @Put('/:id/contents/:contentId')
   @Roles(Role.Admin, Role.Editor)
+  @UseInterceptors(FileInterceptor('image'))
   async updateContent(
     @Param('id') id: string,
     @Param('contentId') contentId: string,
-    @Body() updateContentDto: UpdateContentDto,
+    @Body() updateContentDto: any,
+    @UploadedFile() file = null,
   ): Promise<Content> {
-    return await this.contentService.update(id, contentId, updateContentDto);
+    return await this.contentService.update(
+      id,
+      contentId,
+      updateContentDto,
+      file,
+    );
   }
 
   @Delete('/:id/contents/:contentId')

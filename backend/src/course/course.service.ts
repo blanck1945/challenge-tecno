@@ -1,11 +1,13 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { ILike } from 'typeorm';
 
 import { CreateCourseDto, UpdateCourseDto } from './course.dto';
 import { Course } from './course.entity';
 import { CourseQuery } from './course.query';
 import { handleIlike } from 'src/helpers/handleIlike';
 import { handleSort } from 'src/helpers/handleSort';
+import { Pagination } from 'src/interfaces/pagination.interface';
+import { Favorite } from 'src/favorites/favorites.entity';
+import { Order } from 'src/enums/order.enum';
 
 @Injectable()
 export class CourseService {
@@ -16,31 +18,34 @@ export class CourseService {
     }).save();
   }
 
-  async findAll(courseQuery: CourseQuery): Promise<any> {
+  async findAll(courseQuery: CourseQuery): Promise<Pagination<Course>> {
     const { sortBy, page, limit } = courseQuery;
 
     const whereQuery = handleIlike(courseQuery, ['name', 'description']);
     const orderBy = handleSort(sortBy, {
-      name: 'ASC',
-      description: 'ASC',
+      name: Order.ASC,
+      description: Order.ASC,
     });
 
     const [courses, total] = await Course.findAndCount({
-      where: whereQuery,
+      where: {
+        ...whereQuery,
+        ...(courseQuery.language && { language: courseQuery.language }),
+      },
       order: orderBy,
       skip: (page - 1) * limit,
       take: limit,
     });
 
     return {
-      courses,
+      results: courses,
       total,
       page: +page,
-      lastPage: Math.ceil(total / 3),
+      lastPage: Math.ceil(total / limit),
     };
   }
 
-  async findById(id: string): Promise<Course> {
+  async findById(id: string): Promise<any> {
     const course = await Course.findOne(id);
     if (!course) {
       throw new HttpException(
@@ -48,7 +53,12 @@ export class CourseService {
         HttpStatus.NOT_FOUND,
       );
     }
-    return course;
+
+    const favorites = await Favorite.findOne({
+      where: { courseId: id },
+    });
+
+    return { ...course, isFavorite: favorites ? true : false };
   }
 
   async update(id: string, updateCourseDto: UpdateCourseDto): Promise<Course> {

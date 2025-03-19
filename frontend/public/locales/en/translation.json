@@ -1,0 +1,91 @@
+{
+    "change_language": "Change to Spanish",
+    "dashboard": {
+        "header": "Dashboard",
+        "new_courses": "New Courses",
+        "updated_courses": "Updated Courses",
+        "users": "Users",
+        "courses": "Courses",
+        "contents": "Contents"
+    },
+    "courses": {
+        "header": "Manage Courses",
+        "add": "Add Course",
+        "refresh": "Refresh",
+        "calendar": "Calendar",
+        "name": "Name",
+        "description": "Description",
+        "language": "Language",
+        "language_options": {
+            "all": "All",
+            "en": "English",
+            "es": "Spanish"
+        },
+        "sort_by": "Sort by",
+        "sort_by_options": {
+            "az": "A-Z",
+            "za": "Z-A",
+            "newest": "Newest",
+            "oldest": "Oldest"
+        },
+        "course_table": {
+            "name": "Name",
+            "description": "Description",
+            "language": "Language",
+            "created": "Created",
+            "edit": "Edit",
+            "delete": "Delete"
+        },
+        "paginator": {
+            "showing": "Showing page",
+            "of": "of",
+            "results": "results",
+            "next": "Next",
+            "previous": "Previous"
+        }
+    },
+    "users": {
+        "header": "Manage Users",
+        "add": "Add User",
+        "first_name": "First Name",
+        "last_name": "Last Name",
+        "username": "Username",
+        "role": "Role",
+        "role_options": {
+            "all": "All",
+            "admin": "Admin",
+            "editor": "Editor",
+            "user": "User"
+        },
+        "users_table": {
+            "name": "Name",
+            "username": "Username",
+            "status": "Status",
+            "role": "Role",
+            "created": "Created"
+        },
+        "paginator": {
+            "showing": "Showing page",
+            "of": "of",
+            "results": "results",
+            "next": "Next",
+            "previous": "Previous"
+        }
+    },
+    "profile": {
+        "header": "Profile",
+        "name": "First Name",
+        "last_name": "Last Name",
+        "username": "Username",
+        "role": "Role",
+        "password": "Password",
+        "update": "Update   "
+    },
+    "contact": {
+        "header": "Contact",
+        "name": "Name",
+        "email": "Email",
+        "message": "Message",
+        "send": "Send"
+    }
+  }

@@ -1,0 +1,85 @@
+{
+    "change_language": "Cambiar a Inglés",
+    "dashboard": {
+        "header": "Panel de control",
+        "new_courses": "Nuevos cursos",
+        "updated_courses": "Cursos actualizados",
+        "users": "Usuarios",
+        "courses": "Cursos",
+        "contents": "Contenidos"
+    },
+    "courses": {
+        "header": "Gestionar Cursos",
+        "add": "Agregar Curso",
+        "refresh": "Actualizar",
+        "calendar": "Calendario",
+        "name": "Nombre",
+        "description": "Descripción",
+        "language": "Idioma",
+        "language_options": {
+            "all": "Todos",
+            "en": "Inglés",
+            "es": "Español"
+        },
+        "sort_by": "Ordenar por",
+        "sort_by_options": {
+            "az": "A-Z",
+            "za": "Z-A",
+            "newest": "Más nuevo",
+            "oldest": "Más antiguo"
+        },
+        "course_table": {
+            "name": "Nombre",
+            "description": "Descripción",
+            "language": "Idioma",
+            "created": "Creado",
+            "edit": "Editar",
+            "delete": "Eliminar"
+        },
+        "paginator": {
+            "showing": "Mostrando página",
+            "of": "de",
+            "results": "resultados",
+            "next": "Siguiente",
+            "previous": "Anterior"
+        }
+    },
+    "users": {
+        "header": "Gestionar Usuarios",
+        "add": "Agregar Usuario",
+        "first_name": "Nombre",
+        "last_name": "Apellido",
+        "username": "Nombre de usuario",
+        "role": "Rol",
+        "users_table": {
+            "name": "Nombre",
+            "username": "Nombre de usuario",
+            "status": "Estado",
+            "role": "Rol",
+            "created": "Creado"
+        },
+        "paginator": {
+            "showing": "Mostrando página",
+            "of": "de",
+            "results": "resultados",
+            "next": "Siguiente",
+            "previous": "Anterior"
+        }
+    },
+    "profile": {
+        "header": "Perfil",
+        "name": "Nombre",
+        "last_name": "Apellido",
+        "username": "Nombre de usuario",
+        "role": "Rol",
+        "password": "Contraseña",
+        "update": "Actualizar"
+    },
+    "contact": {
+        "header": "Contacto",
+        "name": "Nombre",
+        "email": "Email",
+        "message": "Mensaje",
+        "send": "Enviar"
+    }
+}

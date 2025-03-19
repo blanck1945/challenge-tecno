@@ -1,7 +1,11 @@
+import './i18n';
+
 import { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Switch } from 'react-router-dom';
 
 import useAuth from './hooks/useAuth';
+import Calendar from './pages/Calendar';
+import Contact from './pages/Contact';
 import Contents from './pages/Contents';
 import Courses from './pages/Courses';
 import Dashboard from './pages/Dashboard';
@@ -20,9 +24,9 @@ export default function App() {
     try {
       const authResponse = await authService.refresh();
       setAuthenticatedUser(authResponse.user);
+      setIsLoaded(true);
     } catch (error) {
       console.log(error);
-    } finally {
       setIsLoaded(true);
     }
   };
@@ -44,6 +48,8 @@ export default function App() {
         <PrivateRoute exact path="/favorites" component={Favorites} />
         <PrivateRoute exact path="/courses" component={Courses} />
         <PrivateRoute exact path="/courses/:id" component={Contents} />
+        <PrivateRoute exact path="/calendar" component={Calendar} />
+        <PrivateRoute exact path="/contact" component={Contact} />
 
         <AuthRoute exact path="/login" component={Login} />
       </Switch>

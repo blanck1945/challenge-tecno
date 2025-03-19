@@ -7,6 +7,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Put,
   Query,
@@ -25,6 +26,8 @@ import { User } from './user.entity';
 import { UserQuery } from './user.query';
 import { UserService } from './user.service';
 import { Course } from 'src/course/course.entity';
+import { Pagination } from 'src/interfaces/pagination.interface';
+import { FavoritesService } from 'src/favorites/favorites.service';
 
 @Controller('users')
 @ApiTags('Users')
@@ -32,7 +35,10 @@ import { Course } from 'src/course/course.entity';
 @UseGuards(JwtGuard, RolesGuard)
 @UseInterceptors(ClassSerializerInterceptor)
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly favoriteService: FavoritesService,
+  ) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -43,7 +49,7 @@ export class UserController {
 
   @Get()
   @Roles(Role.Admin)
-  async findAll(@Query() userQuery: UserQuery): Promise<User[]> {
+  async findAll(@Query() userQuery: UserQuery): Promise<Pagination<User>> {
     return await this.userService.findAll(userQuery);
   }
 
@@ -54,8 +60,26 @@ export class UserController {
   }
 
   @Get(':id/favorites')
-  async getFavorites(@Param('id') userId: string): Promise<Course[]> {
+  async getFavorites(@Param('id') userId: string): Promise<User> {
     return this.userService.getFavorites(userId);
+  }
+
+  @Post(':id/favorites')
+  async addFavorite(
+    @Param('id') userId: string,
+    @Body() body: { courseId: string },
+  ): Promise<void> {
+    console.log('addFavorite');
+    console.log(userId, body.courseId);
+    return this.favoriteService.addFavorite(userId, body.courseId);
+  }
+
+  @Delete(':id/favorites/:courseId')
+  async removeFavorite(
+    @Param('id') userId: string,
+    @Param('courseId') courseId: string,
+  ): Promise<void> {
+    return this.favoriteService.removeFavorite(userId, courseId);
   }
 
   @Put('/:id')

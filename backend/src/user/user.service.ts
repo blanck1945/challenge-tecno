@@ -1,11 +1,11 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { ILike } from 'typeorm';
 
 import { CreateUserDto, UpdateUserDto } from './user.dto';
 import { User } from './user.entity';
 import { UserQuery } from './user.query';
-import { Course } from 'src/course/course.entity';
+import { Pagination } from 'src/interfaces/pagination.interface';
+import { handleIlike } from 'src/helpers/handleIlike';
 
 @Injectable()
 export class UserService {
@@ -24,20 +24,27 @@ export class UserService {
     return User.create(createUserDto).save();
   }
 
-  async findAll(userQuery: UserQuery): Promise<User[]> {
-    Object.keys(userQuery).forEach((key) => {
-      if (key !== 'role') {
-        userQuery[key] = ILike(`%${userQuery[key]}%`);
-      }
-    });
+  async findAll(userQuery: UserQuery): Promise<Pagination<User>> {
+    const { page, limit, ...rest } = userQuery;
 
-    return User.find({
-      where: userQuery,
+    const whereQuery = handleIlike(rest, ['firstName', 'lastName', 'username']);
+
+    const [users, total] = await User.findAndCount({
+      where: { ...rest, ...whereQuery },
       order: {
         firstName: 'ASC',
         lastName: 'ASC',
       },
+      skip: (page - 1) * limit,
+      take: limit,
     });
+
+    return {
+      results: users,
+      total,
+      page: +page,
+      lastPage: Math.ceil(total / limit),
+    };
   }
 
   async findById(id: string): Promise<User> {
@@ -98,11 +105,11 @@ export class UserService {
     });
   }
 
-  async getFavorites(userId: string): Promise<Course[]> {
+  async getFavorites(userId: string): Promise<User> {
     const user = await User.findOne({
       where: { id: userId },
       relations: ['favorites'],
     });
-    return user ? user.favorites : [];
+    return user;
   }
 }

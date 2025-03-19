@@ -43,7 +43,7 @@ export class UserCourseEnrollmentService {
     courseId: string,
   ): Promise<UserCourseEnrollment> {
     const enrollment = await this.enrollmentRepository.findOne({
-      where: { user: userId, course: courseId },
+      where: { userId, courseId },
     });
 
     if (!enrollment) {
@@ -59,7 +59,7 @@ export class UserCourseEnrollmentService {
     courseId: string,
   ): Promise<void> {
     const enrollment = await this.enrollmentRepository.findOne({
-      where: { user: userId, course: courseId },
+      where: { userId, courseId },
     });
 
     if (!enrollment) {
@@ -70,12 +70,13 @@ export class UserCourseEnrollmentService {
     await this.enrollmentRepository.save(enrollment);
   }
 
-  async getEnrolledCourses(userId: string): Promise<Course[]> {
-    const enrollments = await this.enrollmentRepository.find({
+  async getEnrolledCourses(userId: string): Promise<string[]> {
+    const enrollments = await UserCourseEnrollment.find({
       where: { userId, enrolled: true },
-      relations: ['course'],
+      select: ['courseId'],
     });
-    return enrollments.map((enrollment) => enrollment.course);
+
+    return enrollments.map((e) => e.courseId);
   }
 
   async getCoursesNotEnrolled(userId: string): Promise<Course[]> {
@@ -91,7 +92,7 @@ export class UserCourseEnrollmentService {
     courseId: string,
   ): Promise<{ enrolled: EnrolledStatus }> {
     const enrollment = await this.enrollmentRepository.findOne({
-      where: { user: userId, course: courseId },
+      where: { userId, courseId },
     });
 
     if (!enrollment) {

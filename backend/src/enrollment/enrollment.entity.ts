@@ -5,14 +5,24 @@ import {
   ManyToOne,
   JoinColumn,
   Column,
+  BaseEntity,
 } from 'typeorm';
 import { User } from '../user/user.entity';
 import { Course } from '../course/course.entity';
 
 @Entity('user_course_enrollment')
-export class UserCourseEnrollment {
+export class UserCourseEnrollment extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  @Column()
+  userId: string;
+
+  @Column()
+  courseId: string;
+
+  @Column({ default: true })
+  enrolled: boolean;
 
   @ManyToOne(() => User, (user) => user.enrollments)
   @JoinColumn({ name: 'userId' })
@@ -21,7 +31,4 @@ export class UserCourseEnrollment {
   @ManyToOne(() => Course, (course) => course.enrollments)
   @JoinColumn({ name: 'courseId' })
   course: Course;
-
-  @Column({ default: true })
-  enrolled: boolean;
 }

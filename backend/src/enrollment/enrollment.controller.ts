@@ -1,9 +1,22 @@
 // src/user-course-enrollment/user-course-enrollment.controller.ts
-import { Controller, Post, Delete, Param, Get } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Delete,
+  Param,
+  Get,
+  UseGuards,
+} from '@nestjs/common';
 import { UserCourseEnrollmentService } from './enrollment.service';
 import { EnrolledStatus } from 'src/enums/enrolled.enum';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { JwtGuard } from 'src/auth/guards/jwt.guard';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
 
 @Controller('enrollments')
+@ApiBearerAuth()
+@UseGuards(JwtGuard, RolesGuard)
+@ApiTags('Enrollments')
 export class UserCourseEnrollmentController {
   constructor(
     private readonly enrollmentService: UserCourseEnrollmentService,

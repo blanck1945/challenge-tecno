@@ -23,8 +23,8 @@ export class Content extends BaseEntity {
   @Column()
   dateCreated: Date;
 
-  @Column({ type: 'bytea', nullable: true }) // Guardar imagen en binario
-  image: Buffer;
+  @Column({ nullable: true }) // Guardar imagen en binario
+  image: string;
 
   @Column({ select: false, nullable: false })
   courseId: string;

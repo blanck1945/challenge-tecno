@@ -11,6 +11,9 @@ import { RankingModule } from './ranking/ranking.module';
 import { UserCourseEnrollmentModule } from './enrollment/enrollment.module';
 import { MailService } from './mail/mail.service';
 import { MailController } from './mail/mail.controller';
+import { FavoritesService } from './favorites/favorites.service';
+import { FavoritesModule } from './favorites/favorites.module';
+import { ScriptsModule } from './scripts/scripts.module';
 
 @Module({
   imports: [
@@ -23,8 +26,10 @@ import { MailController } from './mail/mail.controller';
     StatsModule,
     RankingModule,
     UserCourseEnrollmentModule,
+    FavoritesModule,
+    ScriptsModule,
   ],
   controllers: [MailController],
-  providers: [MailService],
+  providers: [MailService, FavoritesService],
 })
 export class AppModule {}

@@ -9,11 +9,11 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { RankingService } from './review.service';
-import { Roles } from 'src/decorators/roles.decorator';
-import { Role } from 'src/enums/role.enum';
+import { Roles } from '../decorators/roles.decorator';
+import { Role } from '../enums/role.enum';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { JwtGuard } from 'src/auth/guards/jwt.guard';
-import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { JwtGuard } from '../auth/guards/jwt.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
 import { CreateRankingDto } from './review.dto';
 import { RankingQuery } from './review.query';
 
@@ -26,8 +26,12 @@ export class RankingController {
 
   @Get()
   @Roles(Role.Admin)
-  async getReview(@Query() rankingQuery: RankingQuery) {
-    return this.rankingService.getRanking(rankingQuery);
+  async getReview(
+    @Query('sortBy') sortBy: string,
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+  ) {
+    return this.rankingService.getRanking(sortBy, page, limit);
   }
 
   @Get(':id')

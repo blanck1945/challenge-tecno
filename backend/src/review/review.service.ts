@@ -8,8 +8,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Review } from './review.entity';
 import { CreateRankingDto as CreateReviewDto } from './review.dto';
-import { Pagination } from 'src/interfaces/pagination.interface';
-import { RankingQuery as ReviewQuery } from './review.query';
+import { Pagination } from '../interfaces/pagination.interface';
+import { handleSort } from '../helpers/handleSort';
 
 @Injectable()
 export class RankingService {
@@ -18,11 +18,16 @@ export class RankingService {
     private readonly reviewRepository: Repository<Review>,
   ) {}
 
-  async getRanking(rankingQuery: ReviewQuery): Promise<Pagination<Review>> {
-    const { sortBy, page, limit } = rankingQuery;
+  async getRanking(
+    sortBy: string,
+    page: number,
+    limit: number,
+  ): Promise<Pagination<Review>> {
+    const order = handleSort(sortBy);
+
     const skip = (page - 1) * limit;
     const [rankings, total] = await this.reviewRepository.findAndCount({
-      order: { [sortBy]: 'ASC' },
+      order,
       skip,
       take: limit,
     });

@@ -29,12 +29,7 @@ async function bootstrap() {
   app.use(cookieParser());
   app.useGlobalPipes(new ValidationPipe());
 
-  console.log('Server running on http://localhost:5000');
-  app.enableCors({
-    origin: 'http://localhost:3000', // Esto permite solicitudes desde el frontend
-    methods: 'GET,POST,PUT,DELETE',  // Puedes agregar los métodos necesarios
-    allowedHeaders: 'Content-Type, Accept, Authorization',  // Los encabezados necesarios
-  });
+  app.enableCors();
   const config = new DocumentBuilder()
     .setTitle('Carna Project API')
     .setDescription('Carna Project API Documentation')

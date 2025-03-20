@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Loader } from 'react-feather';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 
 import useAuth from '../hooks/useAuth';
@@ -8,6 +9,7 @@ import LoginRequest from '../models/auth/LoginRequest';
 import authService from '../services/AuthService';
 
 export default function Login() {
+  const { t } = useTranslation();
   const { setAuthenticatedUser } = useAuth();
   const history = useHistory();
 
@@ -32,7 +34,9 @@ export default function Login() {
   return (
     <div className="h-full flex justify-center items-center">
       <div className="card shadow">
-        <h1 className="mb-3 text-center font-semibold text-4xl">Login</h1>
+        <h1 className="mb-3 text-center font-semibold text-4xl">
+          {t('login.header')}
+        </h1>
         <hr />
         <form
           className="flex flex-col gap-5 mt-8 w-64"
@@ -41,7 +45,7 @@ export default function Login() {
           <input
             type="text"
             className="input sm:text-lg"
-            placeholder="Username"
+            placeholder={t('login.username')}
             required
             disabled={isSubmitting}
             {...register('username')}
@@ -49,7 +53,7 @@ export default function Login() {
           <input
             type="password"
             className="input sm:text-lg"
-            placeholder="Password"
+            placeholder={t('login.password')}
             required
             disabled={isSubmitting}
             {...register('password')}
@@ -62,7 +66,7 @@ export default function Login() {
             {isSubmitting ? (
               <Loader className="animate-spin mx-auto" />
             ) : (
-              'Login'
+              t('login.submit')
             )}
           </button>
           {error ? (

@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { CourseLanguages } from '../enums/courseLanguages.enum';
 
 export class CreateCourseDto {
   @IsNotEmpty()
@@ -9,9 +10,9 @@ export class CreateCourseDto {
   @IsString()
   description: string;
 
-  @IsOptional()
-  @IsString()
-  image: any;
+  @IsNotEmpty()
+  @IsEnum(CourseLanguages)
+  language: CourseLanguages;
 }
 
 export class UpdateCourseDto {
@@ -26,6 +27,7 @@ export class UpdateCourseDto {
   description?: string;
 
   @IsOptional()
-  @IsString()
-  image?: any;
+  @IsNotEmpty()
+  @IsEnum(CourseLanguages)
+  language?: CourseLanguages;
 }

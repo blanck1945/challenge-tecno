@@ -10,18 +10,18 @@ import {
 } from 'typeorm';
 
 import { Content } from '../content/content.entity';
-import { User } from 'src/user/user.entity';
-import { Review } from 'src/review/review.entity';
-import { UserCourseEnrollment } from 'src/enrollment/enrollment.entity';
-import { CourseLanguages } from 'src/enums/courseLanguages.enum';
-import { Favorite } from 'src/favorites/favorites.entity';
+import { User } from '../user/user.entity';
+import { Review } from '../review/review.entity';
+import { UserCourseEnrollment } from '../enrollment/enrollment.entity';
+import { CourseLanguages } from '../enums/courseLanguages.enum';
+import { Favorite } from '../favorites/favorites.entity';
 
 @Entity()
 export class Course extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column({ collation: 'und-x-icu' })
   name: string;
 
   @Column()
@@ -43,13 +43,17 @@ export class Course extends BaseEntity {
   @OneToMany(() => Review, (review) => review.course)
   rankings: Review[];
 
-  @OneToMany(() => Favorite, (favorite) => favorite.course)
+  @OneToMany(() => Favorite, (favorite) => favorite.course, {
+    cascade: true,
+  })
   favorites: Favorite[];
 
   @ManyToMany(() => User, (user) => user.favorites)
   users: User[];
 
-  @OneToMany(() => UserCourseEnrollment, (enrollment) => enrollment.course)
+  @OneToMany(() => UserCourseEnrollment, (enrollment) => enrollment.course, {
+    cascade: true,
+  })
   enrollments: UserCourseEnrollment[];
 
   @CreateDateColumn()

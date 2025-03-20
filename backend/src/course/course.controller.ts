@@ -1,9 +1,12 @@
 import {
   Body,
   Controller,
+  DefaultValuePipe,
   Delete,
   Get,
   Param,
+  ParseIntPipe,
+  ParseUUIDPipe,
   Post,
   Put,
   Query,
@@ -16,16 +19,15 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtGuard } from '../auth/guards/jwt.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Content } from '../content/content.entity';
-import { ContentQuery } from '../content/content.query';
 import { ContentService } from '../content/content.service';
 import { Roles } from '../decorators/roles.decorator';
 import { Role } from '../enums/role.enum';
 import { CreateCourseDto, UpdateCourseDto } from './course.dto';
 import { Course } from './course.entity';
-import { CourseQuery } from './course.query';
 import { CourseService } from './course.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Pagination } from 'src/interfaces/pagination.interface';
+import { DeleteResult } from 'typeorm';
 
 @Controller('courses')
 @ApiBearerAuth()
@@ -37,65 +39,82 @@ export class CourseController {
     private readonly contentService: ContentService,
   ) {}
 
+  @Get()
+  async findAll(
+    @Query('sortBy', new DefaultValuePipe('name:ASC')) sortBy: string,
+    @Query('page', ParseIntPipe) page: number,
+    @Query('limit', ParseIntPipe) limit: number,
+    @Query('name', new DefaultValuePipe('')) name: string,
+    @Query('description', new DefaultValuePipe('')) description: string,
+    @Query('language', new DefaultValuePipe('')) language: string,
+  ): Promise<Pagination<Course>> {
+    return await this.courseService.findAll(
+      sortBy,
+      page,
+      limit,
+      name,
+      description,
+      language,
+    );
+  }
+
+  @Get('/:id')
+  async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<Course> {
+    return await this.courseService.findById(id);
+  }
+
+  @Get('/:id/contents')
+  async findAllContentsByCourseId(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Query('sortBy', new DefaultValuePipe('name:ASC')) sortBy: string,
+    @Query('page', ParseIntPipe) page: number,
+    @Query('limit', ParseIntPipe) limit: number,
+    @Query('name', new DefaultValuePipe('')) name: string,
+    @Query('description', new DefaultValuePipe('')) description: string,
+  ): Promise<Pagination<Content>> {
+    return await this.contentService.findAllByCourseId(
+      id,
+      sortBy,
+      page,
+      limit,
+      name,
+      description,
+    );
+  }
+
   @Post()
   @Roles(Role.Admin, Role.Editor)
   async save(@Body() createCourseDto: CreateCourseDto): Promise<Course> {
     return await this.courseService.save(createCourseDto);
   }
 
-  @Get()
-  async findAll(
-    @Query() courseQuery: CourseQuery,
-  ): Promise<Pagination<Course>> {
-    return await this.courseService.findAll(courseQuery);
-  }
-
-  @Get('/:id')
-  async findOne(@Param('id') id: string): Promise<Course> {
-    return await this.courseService.findById(id);
-  }
-
-  @Put('/:id')
-  @Roles(Role.Admin, Role.Editor)
-  async update(
-    @Param('id') id: string,
-    @Body() updateCourseDto: UpdateCourseDto,
-  ): Promise<Course> {
-    return await this.courseService.update(id, updateCourseDto);
-  }
-
-  @Delete('/:id')
-  @Roles(Role.Admin)
-  async delete(@Param('id') id: string): Promise<string> {
-    return await this.courseService.delete(id);
-  }
-
   @Post('/:id/contents')
   @Roles(Role.Admin, Role.Editor)
   @UseInterceptors(FileInterceptor('image'))
   async saveContent(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() createContentDto: any,
     @UploadedFile() file = null,
   ): Promise<Content> {
     return await this.contentService.save(id, createContentDto, file);
   }
 
-  @Get('/:id/contents')
-  async findAllContentsByCourseId(
-    @Param('id') id: string,
-    @Query() contentQuery: ContentQuery,
-  ): Promise<Pagination<Content>> {
-    return await this.contentService.findAllByCourseId(id, contentQuery);
+  @Put('/:id')
+  @Roles(Role.Admin, Role.Editor)
+  async update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateCourseDto: UpdateCourseDto,
+  ): Promise<Course> {
+    return await this.courseService.update(id, updateCourseDto);
   }
 
   @Put('/:id/contents/:contentId')
   @Roles(Role.Admin, Role.Editor)
   @UseInterceptors(FileInterceptor('image'))
   async updateContent(
-    @Param('id') id: string,
-    @Param('contentId') contentId: string,
-    @Body() updateContentDto: any,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('contentId', ParseUUIDPipe) contentId: string,
+    @Body() updateContentDto: UpdateCourseDto,
     @UploadedFile() file = null,
   ): Promise<Content> {
     return await this.contentService.update(
@@ -109,9 +128,15 @@ export class CourseController {
   @Delete('/:id/contents/:contentId')
   @Roles(Role.Admin)
   async deleteContent(
-    @Param('id') id: string,
-    @Param('contentId') contentId: string,
-  ): Promise<string> {
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('contentId', ParseUUIDPipe) contentId: string,
+  ): Promise<DeleteResult> {
     return await this.contentService.delete(id, contentId);
+  }
+
+  @Delete('/:id')
+  @Roles(Role.Admin)
+  async delete(@Param('id', ParseUUIDPipe) id: string): Promise<DeleteResult> {
+    return await this.courseService.delete(id);
   }
 }

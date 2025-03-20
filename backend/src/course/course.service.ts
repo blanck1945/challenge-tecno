@@ -2,12 +2,11 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 
 import { CreateCourseDto, UpdateCourseDto } from './course.dto';
 import { Course } from './course.entity';
-import { CourseQuery } from './course.query';
-import { handleIlike } from 'src/helpers/handleIlike';
-import { handleSort } from 'src/helpers/handleSort';
-import { Pagination } from 'src/interfaces/pagination.interface';
-import { Order } from 'src/enums/order.enum';
-import { Repository } from 'typeorm';
+import { handleIlike } from '../helpers/handleIlike';
+import { handleSort } from '../helpers/handleSort';
+import { Pagination } from '../interfaces/pagination.interface';
+import { Order } from '../enums/order.enum';
+import { DeleteResult, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
@@ -19,24 +18,32 @@ export class CourseService {
 
   async save(createCourseDto: CreateCourseDto): Promise<Course> {
     const course = this.courseRepository.create({
-      ...createCourseDto,
+      name: createCourseDto.name.toLowerCase(),
+      description: createCourseDto.description.toLowerCase(),
+      language: createCourseDto.language,
     });
     return await this.courseRepository.save(course);
   }
 
-  async findAll(courseQuery: CourseQuery): Promise<Pagination<Course>> {
-    const { sortBy, page, limit } = courseQuery;
-
-    const whereQuery = handleIlike(courseQuery, ['name', 'description']);
-    const orderBy = handleSort(sortBy, {
-      name: Order.ASC,
-      description: Order.ASC,
+  async findAll(
+    sortBy: string,
+    page: number,
+    limit: number,
+    name: string,
+    description: string,
+    language: string,
+  ): Promise<Pagination<Course>> {
+    const whereQuery = handleIlike({
+      name,
+      description,
     });
+
+    const orderBy = handleSort(sortBy);
 
     const [courses, total] = await this.courseRepository.findAndCount({
       where: {
         ...whereQuery,
-        ...(courseQuery.language && { language: courseQuery.language }),
+        ...(language && { language }),
       },
       order: orderBy,
       skip: (page - 1) * limit,
@@ -67,24 +74,23 @@ export class CourseService {
     const course = await this.findById(id);
     const updatedCourse = this.courseRepository.create({
       id: course.id,
-      ...updateCourseDto,
+      name: updateCourseDto.name.toLowerCase(),
+      description: updateCourseDto.description,
+      language: updateCourseDto.language,
       updatedAt: new Date(),
     });
     return await this.courseRepository.save(updatedCourse);
   }
 
-  async delete(id: string): Promise<string> {
-    const course = await this.findById(id);
-
+  async delete(courseId: string): Promise<DeleteResult> {
+    const course = await this.findById(courseId);
     if (!course) {
       throw new HttpException(
-        `Course with id ${id} not found`,
+        `Course with id ${courseId} not found`,
         HttpStatus.NOT_FOUND,
       );
     }
-
-    await this.courseRepository.delete(course.id);
-    return id;
+    return await this.courseRepository.delete(course.id);
   }
 
   async count(): Promise<number> {

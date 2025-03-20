@@ -29,11 +29,16 @@ body {
 @layer components {
   .btn {
     @apply p-3 bg-[#c1292e] rounded-md focus:outline-none text-white;
-    @apply hover:bg-blue-700 transition-all;
+    @apply hover:bg-[#a12124] transition-all;
     @apply focus:ring disabled:opacity-50;
   }
   .btn.danger {
     @apply bg-red-500 hover:bg-red-700;
+  }
+  .btn.disabled {
+    @apply p-3 bg-[#c1292e] rounded-md focus:outline-none text-white;
+    @apply opacity-50;
+    @apply cursor-not-allowed;
   }
   .input {
     @apply rounded-md border-gray-300 transition-colors disabled:opacity-50;

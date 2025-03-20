@@ -11,7 +11,7 @@ export class CreateContentDto {
 
   @IsOptional()
   @IsString()
-  image: any;
+  image?: any;
 }
 
 export class UpdateContentDto {

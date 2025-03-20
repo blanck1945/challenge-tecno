@@ -1,16 +1,15 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { DeleteResult, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { CourseService } from '../course/course.service';
-import { UpdateContentDto } from './content.dto';
+import { CreateContentDto, UpdateContentDto } from './content.dto';
 import { Content } from './content.entity';
 import { ContentQuery } from './content.query';
-import { UploadService } from 'src/upload/upload.service';
-import { handleIlike } from 'src/helpers/handleIlike';
-import { handleSort } from 'src/helpers/handleSort';
-import { Pagination } from 'src/interfaces/pagination.interface';
-import { Order } from 'src/enums/order.enum';
+import { UploadService } from '../upload/upload.service';
+import { handleIlike } from '../helpers/handleIlike';
+import { handleSort } from '../helpers/handleSort';
+import { Pagination } from '../interfaces/pagination.interface';
 
 @Injectable()
 export class ContentService {
@@ -23,7 +22,7 @@ export class ContentService {
 
   async save(
     courseId: string,
-    createContentDto: any,
+    createContentDto: CreateContentDto,
     file: any,
   ): Promise<Content> {
     const course = await this.courseService.findById(courseId);
@@ -33,9 +32,10 @@ export class ContentService {
         await this.uploadService.uploadFile(file.buffer)
       ).file;
     }
+    const lowerCaseName = createContentDto.name.toLowerCase();
 
     const content = this.contentRepository.create({
-      name: createContentDto.name,
+      name: createContentDto.name.toLowerCase(),
       description: createContentDto.description,
       image: createContentDto.image,
       course,
@@ -44,14 +44,18 @@ export class ContentService {
     return await this.contentRepository.save(content);
   }
 
-  async findAll(contentQuery: ContentQuery): Promise<Pagination<Content>> {
-    const { sortBy, page, limit } = contentQuery;
-
-    const order = handleSort(sortBy, {
-      name: Order.ASC,
-      description: Order.ASC,
+  async findAll(
+    sortBy: string,
+    page: number,
+    limit: number,
+    name: string,
+    description: string,
+  ): Promise<Pagination<Content>> {
+    const order = handleSort(sortBy);
+    const where = handleIlike({
+      name,
+      description,
     });
-    const where = handleIlike(contentQuery, ['name', 'description']);
 
     const [contents, total] = await this.contentRepository.findAndCount({
       where,
@@ -96,19 +100,21 @@ export class ContentService {
 
   async findAllByCourseId(
     courseId: string,
-    contentQuery: ContentQuery,
+    sortBy: string,
+    page: number,
+    limit: number,
+    name: string,
+    description: string,
   ): Promise<Pagination<Content>> {
-    const { sortBy, page, limit, ...rest } = contentQuery;
+    const order = handleSort(sortBy);
 
-    const order = handleSort(sortBy, {
-      name: Order.ASC,
-      description: Order.ASC,
+    const where = handleIlike({
+      name,
+      description,
     });
 
-    const where = handleIlike(rest, ['name', 'description']);
-
     const [contents, total] = await this.contentRepository.findAndCount({
-      where: { courseId, ...where, ...rest },
+      where: { courseId, ...where },
       order,
       skip: (page - 1) * limit,
       take: limit,
@@ -138,11 +144,13 @@ export class ContentService {
 
     return await this.contentRepository.save({
       id: content.id,
-      ...updateContentDto,
+      name: updateContentDto.name.toLowerCase(),
+      description: updateContentDto.description,
+      image: updateContentDto.image,
     });
   }
 
-  async delete(courseId: string, id: string): Promise<string> {
+  async delete(courseId: string, id: string): Promise<DeleteResult> {
     const content = await this.findByCourseIdAndId(courseId, id);
 
     if (!content) {
@@ -152,8 +160,7 @@ export class ContentService {
       );
     }
 
-    await this.contentRepository.delete(content);
-    return id;
+    return await this.contentRepository.delete(content.id);
   }
 
   async count(): Promise<number> {

@@ -1,5 +1,5 @@
-import { Course } from 'src/course/course.entity';
-import { User } from 'src/user/user.entity';
+import { Course } from '../course/course.entity';
+import { User } from '../user/user.entity';
 import {
   BaseEntity,
   CreateDateColumn,

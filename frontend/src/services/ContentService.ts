@@ -2,17 +2,21 @@ import Content from '../models/content/Content';
 import ContentQuery from '../models/content/ContentQuery';
 import CreateContentRequest from '../models/content/CreateContentRequest';
 import UpdateContentRequest from '../models/content/UpdateContentRequest';
+import { Paginator } from '../models/core/Paginator';
 import apiService from './ApiService';
 
 class ContentService {
   async findAll(
     courseId: string,
     contentQuery: ContentQuery,
-  ): Promise<Content[]> {
+  ): Promise<Paginator<Content>> {
     return (
-      await apiService.get<Content[]>(`/api/courses/${courseId}/contents`, {
-        params: contentQuery,
-      })
+      await apiService.get<Paginator<Content>>(
+        `/api/courses/${courseId}/contents`,
+        {
+          params: contentQuery,
+        },
+      )
     ).data;
   }
 
@@ -26,7 +30,7 @@ class ContentService {
   async update(
     courseId: string,
     id: string,
-    updateContentRequest: UpdateContentRequest,
+    updateContentRequest: FormData,
   ): Promise<void> {
     await apiService.put(
       `/api/courses/${courseId}/contents/${id}`,

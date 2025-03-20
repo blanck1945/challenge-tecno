@@ -10,14 +10,14 @@ class UserService {
   }
 
   async findAll(courseQuery: CourseQuery): Promise<any> {
-    console.log('COURSE QUERY', courseQuery);
     return (
       await apiService.get<Course[]>('/api/courses', { params: courseQuery })
     ).data;
   }
 
   async findOne(id: string): Promise<Course> {
-    return (await apiService.get<Course>(`/api/courses/${id}`)).data;
+    const course = (await apiService.get<Course>(`/api/courses/${id}`)).data;
+    return course;
   }
 
   async update(
@@ -29,6 +29,11 @@ class UserService {
 
   async delete(id: string): Promise<void> {
     await apiService.delete(`/api/courses/${id}`);
+  }
+
+  async getAverageScore(id: string): Promise<number> {
+    return (await apiService.get<number>(`/api/courses/${id}/average-score`))
+      .data;
   }
 }
 

@@ -1,4 +1,6 @@
+import { Paginator } from '../models/core/Paginator';
 import Course from '../models/course/Course';
+import { Enrolled } from '../models/enrolled/Enrolled';
 import CreateUserRequest from '../models/user/CreateUserRequest';
 import UpdateUserRequest from '../models/user/UpdateUserRequest';
 import User from '../models/user/User';
@@ -10,9 +12,9 @@ class UserService {
     await apiService.post('/api/users', createUserRequest);
   }
 
-  async findAll(userQuery: UserQuery): Promise<User[]> {
+  async findAll(userQuery: UserQuery): Promise<Paginator<User>> {
     return (
-      await apiService.get<User[]>('/api/users', {
+      await apiService.get<Paginator<User>>('/api/users', {
         params: userQuery,
       })
     ).data;
@@ -46,6 +48,14 @@ class UserService {
 
   async getFavorites(id: string): Promise<Course[]> {
     return (await apiService.get<Course[]>(`/api/users/${id}/favorites`)).data;
+  }
+
+  async isUserEnrolled(userId: string, courseId: string): Promise<any> {
+    return (
+      await apiService.get<Enrolled>(
+        `/api/enrollments/${userId}/${courseId}/is-enrolled`,
+      )
+    ).data;
   }
 
   async delete(id: string): Promise<void> {

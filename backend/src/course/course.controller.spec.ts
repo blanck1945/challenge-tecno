@@ -1,109 +1,29 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CreateContentDto, UpdateContentDto } from 'src/content/content.dto';
-
-import { ContentService } from '../content/content.service';
 import { CourseController } from './course.controller';
-import { CreateCourseDto, UpdateCourseDto } from './course.dto';
 import { CourseService } from './course.service';
+import { ContentService } from '../content/content.service';
+import { CreateCourseDto, UpdateCourseDto } from './course.dto';
+import { CourseLanguages } from '../enums/courseLanguages.enum';
 
-const CourseMockService = {
-  save: jest.fn().mockImplementation((createCourseDto: CreateCourseDto) => {
-    return {
-      id: 'testid',
-      dateCreated: new Date(),
-      ...createCourseDto,
-    };
-  }),
-  findAll: jest.fn().mockImplementation(() => {
-    return [
-      {
-        id: 'testid1',
-        name: 'test1',
-        description: 'test1',
-        dateCreated: new Date(),
-      },
-      {
-        id: 'testid2',
-        name: 'test2',
-        description: 'test2',
-        dateCreated: new Date(),
-      },
-      {
-        id: 'testid3',
-        name: 'test3',
-        description: 'test3',
-        dateCreated: new Date(),
-      },
-    ];
-  }),
-  findById: jest.fn().mockImplementation((id: string) => {
-    return {
-      id,
-      name: 'test',
-      description: 'test',
-      dateCreated: new Date(),
-    };
-  }),
-  update: jest
-    .fn()
-    .mockImplementation((id: string, updateCourseDto: UpdateCourseDto) => {
-      return {
-        id,
-        ...updateCourseDto,
-      };
-    }),
-  delete: jest.fn().mockImplementation((id) => id),
+const mockCourseService = {
+  findAll: jest.fn(),
+  findById: jest.fn(),
+  save: jest.fn(),
+  update: jest.fn(),
+  delete: jest.fn(),
 };
 
-const ContentMockService = {
-  save: jest
-    .fn()
-    .mockImplementation((id: string, createContentDto: CreateContentDto) => {
-      return {
-        id: 'testid',
-        dateCreated: new Date(),
-        ...createContentDto,
-      };
-    }),
-  findAllByCourseId: jest.fn().mockImplementation((id: string) => {
-    return [
-      {
-        id: 'testid1',
-        name: 'test1',
-        description: 'test1',
-        dateCreated: new Date(),
-      },
-      {
-        id: 'testid2',
-        name: 'test2',
-        description: 'test2',
-        dateCreated: new Date(),
-      },
-      {
-        id: 'testid3',
-        name: 'test3',
-        description: 'test3',
-        dateCreated: new Date(),
-      },
-    ];
-  }),
-  update: jest
-    .fn()
-    .mockImplementation(
-      (id: string, contentId: string, updateContentDto: UpdateContentDto) => {
-        return {
-          id: contentId,
-          ...updateContentDto,
-        };
-      },
-    ),
-  delete: jest
-    .fn()
-    .mockImplementation((id: string, contentId: string) => contentId),
+const mockContentService = {
+  findAllByCourseId: jest.fn(),
+  save: jest.fn(),
+  update: jest.fn(),
+  delete: jest.fn(),
 };
 
 describe('CourseController', () => {
   let controller: CourseController;
+  let courseService: CourseService;
+  let contentService: ContentService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -111,156 +31,219 @@ describe('CourseController', () => {
       providers: [
         {
           provide: CourseService,
-          useValue: CourseMockService,
+          useValue: mockCourseService,
         },
         {
           provide: ContentService,
-          useValue: ContentMockService,
+          useValue: mockContentService,
         },
       ],
     }).compile();
 
     controller = module.get<CourseController>(CourseController);
+    courseService = module.get<CourseService>(CourseService);
+    contentService = module.get<ContentService>(ContentService);
   });
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
   });
 
-  describe('saveCourse', () => {
-    it('should get the created course ', async () => {
-      const created = await controller.save({
-        name: 'test',
-        description: 'test',
-      });
-      expect(created.id).toBe('testid');
-      expect(created.name).toBe('test');
-      expect(created.description).toBe('test');
+  describe('findAll', () => {
+    it('should return an array of courses with pagination', async () => {
+      const result = {
+        items: [
+          {
+            id: '1',
+            name: 'Course 1',
+            description: 'Description 1',
+          },
+        ],
+        meta: {
+          totalItems: 1,
+          itemCount: 1,
+          itemsPerPage: 10,
+          totalPages: 1,
+          currentPage: 1,
+        },
+      };
+
+      mockCourseService.findAll.mockResolvedValue(result);
+
+      expect(await controller.findAll('name:ASC', 1, 10, '', '', '')).toBe(
+        result,
+      );
+      expect(courseService.findAll).toHaveBeenCalledWith(
+        'name:ASC',
+        1,
+        10,
+        '',
+        '',
+        '',
+      );
     });
   });
 
-  describe('findAllCourses', () => {
-    it('should get the array of courses ', async () => {
-      const courses = await controller.findAll({});
-      expect(courses[0].id).toBe('testid1');
-      expect(courses[1].name).toBe('test2');
-      expect(courses[2].description).toBe('test3');
-    });
-  });
+  describe('findOne', () => {
+    it('should return a course', async () => {
+      const result = {
+        id: '1',
+        name: 'Course 1',
+        description: 'Description 1',
+      };
 
-  describe('findCourseById', () => {
-    it('should get the course with matching id ', async () => {
-      const spy = jest.spyOn(global, 'Date');
-      const course = await controller.findOne('testid');
-      const date = spy.mock.instances[0];
+      mockCourseService.findById.mockResolvedValue(result);
 
-      expect(course).toEqual({
-        id: 'testid',
-        name: 'test',
-        description: 'test',
-        dateCreated: date,
-      });
-    });
-  });
-
-  describe('updateCourse', () => {
-    it('should update a course and return changed values', async () => {
-      const updatedCourse = await controller.update('testid', {
-        name: 'test',
-        description: 'test',
-      });
-
-      expect(updatedCourse).toEqual({
-        id: 'testid',
-        name: 'test',
-        description: 'test',
-      });
-
-      const updatedCourse2 = await controller.update('testid2', {
-        name: 'test2',
-      });
-
-      expect(updatedCourse2).toEqual({
-        id: 'testid2',
-        name: 'test2',
-      });
-    });
-  });
-
-  describe('deleteCourse', () => {
-    it('should delete a course and return the id', async () => {
-      const id = await controller.delete('testid');
-      expect(id).toBe('testid');
-    });
-  });
-
-  describe('saveContent', () => {
-    it('should get the saved content', async () => {
-      const spy = jest.spyOn(global, 'Date');
-      const content = await controller.saveContent('testcourseid', {
-        name: 'test',
-        description: 'test',
-      });
-      const date = spy.mock.instances[0];
-
-      expect(content).toEqual({
-        id: 'testid',
-        name: 'test',
-        description: 'test',
-        dateCreated: date,
-      });
+      expect(await controller.findOne('1')).toBe(result);
+      expect(courseService.findById).toHaveBeenCalledWith('1');
     });
   });
 
   describe('findAllContentsByCourseId', () => {
-    it('should get the array of contents', async () => {
-      const contents = await controller.findAllContentsByCourseId(
-        'testcourseid',
-        {},
-      );
+    it('should return an array of contents with pagination', async () => {
+      const result = {
+        items: [
+          {
+            id: '1',
+            name: 'Content 1',
+            description: 'Description 1',
+          },
+        ],
+        meta: {
+          totalItems: 1,
+          itemCount: 1,
+          itemsPerPage: 10,
+          totalPages: 1,
+          currentPage: 1,
+        },
+      };
 
-      expect(contents[0].id).toBe('testid1');
-      expect(contents[1].name).toBe('test2');
-      expect(contents[2].description).toBe('test3');
+      mockContentService.findAllByCourseId.mockResolvedValue(result);
+
+      expect(
+        await controller.findAllContentsByCourseId(
+          '1',
+          'name:ASC',
+          1,
+          10,
+          '',
+          '',
+        ),
+      ).toBe(result);
+      expect(contentService.findAllByCourseId).toHaveBeenCalledWith(
+        '1',
+        'name:ASC',
+        1,
+        10,
+        '',
+        '',
+      );
+    });
+  });
+
+  describe('save', () => {
+    it('should create a new course', async () => {
+      const createCourseDto: CreateCourseDto = {
+        name: 'New Course',
+        description: 'New Description',
+        language: CourseLanguages.English,
+      };
+
+      const result = {
+        id: '1',
+        ...createCourseDto,
+      };
+
+      mockCourseService.save.mockResolvedValue(result);
+
+      expect(await controller.save(createCourseDto)).toBe(result);
+      expect(courseService.save).toHaveBeenCalledWith(createCourseDto);
+    });
+  });
+
+  describe('saveContent', () => {
+    it('should create a new content', async () => {
+      const createContentDto = {
+        name: 'New Content',
+        description: 'New Description',
+      };
+
+      const result = {
+        id: '1',
+        ...createContentDto,
+      };
+
+      mockContentService.save.mockResolvedValue(result);
+
+      expect(await controller.saveContent('1', createContentDto, null)).toBe(
+        result,
+      );
+      expect(contentService.save).toHaveBeenCalledWith(
+        '1',
+        createContentDto,
+        null,
+      );
+    });
+  });
+
+  describe('update', () => {
+    it('should update a course', async () => {
+      const updateCourseDto: UpdateCourseDto = {
+        name: 'Updated Course',
+      };
+
+      const result = {
+        id: '1',
+        ...updateCourseDto,
+      };
+
+      mockCourseService.update.mockResolvedValue(result);
+
+      expect(await controller.update('1', updateCourseDto)).toBe(result);
+      expect(courseService.update).toHaveBeenCalledWith('1', updateCourseDto);
     });
   });
 
   describe('updateContent', () => {
-    it('should update a content and return changed values', async () => {
-      const updatedContent = await controller.updateContent(
-        'testid',
-        'testcontentid',
-        {
-          name: 'test',
-          description: 'test',
-        },
+    it('should update a content', async () => {
+      const updateContentDto = {
+        name: 'Updated Content',
+      };
+
+      const result = {
+        id: '1',
+        ...updateContentDto,
+      };
+
+      mockContentService.update.mockResolvedValue(result);
+
+      expect(
+        await controller.updateContent('1', '1', updateContentDto, null),
+      ).toBe(result);
+      expect(contentService.update).toHaveBeenCalledWith(
+        '1',
+        '1',
+        updateContentDto,
+        null,
       );
+    });
+  });
 
-      expect(updatedContent).toEqual({
-        id: 'testcontentid',
-        name: 'test',
-        description: 'test',
-      });
+  describe('delete', () => {
+    it('should delete a course', async () => {
+      mockCourseService.delete.mockResolvedValue('1');
 
-      const updatedContent2 = await controller.updateContent(
-        'testid',
-        'testcontentid2',
-        {
-          description: 'test',
-        },
-      );
-
-      expect(updatedContent2).toEqual({
-        id: 'testcontentid2',
-        description: 'test',
-      });
+      expect(await controller.delete('1')).toBe('1');
+      expect(courseService.delete).toHaveBeenCalledWith('1');
     });
   });
 
   describe('deleteContent', () => {
-    it('should delete a content and return the id', async () => {
-      const id = await controller.deleteContent('testid', 'testcontentid');
-      expect(id).toBe('testcontentid');
+    it('should delete a content', async () => {
+      mockContentService.delete.mockResolvedValue('1');
+
+      expect(await controller.deleteContent('1', '1')).toBe('1');
+      expect(contentService.delete).toHaveBeenCalledWith('1', '1');
     });
   });
 });

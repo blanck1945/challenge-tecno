@@ -1,8 +1,10 @@
 // @ts-nocheck
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 import { MailtrapClient, MailtrapTransport } from 'mailtrap';
 import * as mailjet from 'node-mailjet';
+import { SendEmailDto } from './email.dto';
+import { recived } from './templates/recived';
 
 @Injectable()
 export class MailService {
@@ -10,38 +12,36 @@ export class MailService {
 
   constructor() {
     this.mailjet = mailjet.apiConnect(
-      process.env.MJ_APIKEY_PUBLIC,
-      process.env.MJ_APIKEY_PRIVATE,
+      process.env.MJ_APIKEY_PUBLIC || 'mock',
+      process.env.MJ_APIKEY_PRIVATE || 'mock',
     );
   }
 
-  async sendEmail(to: any, subject: string, text: string, html: string) {
+  async sendEmail(sendEmailDto: SendEmailDto) {
     try {
-      const request = this.mailjet.post('send', { version: 'v3.1' }).request({
+      await this.mailjet.post('send', { version: 'v3.1' }).request({
         Messages: [
           {
             From: {
-              Email: 'aspastrana990@gmail.com', // Tu dirección de correo
-              Name: 'Urbano Soporte', // Nombre del remitente
+              Email: 'aspastrana990@gmail.com',
+              Name: 'Urbano Soporte',
             },
             To: [
               {
-                Email: to[0].email, // Dirección de correo del destinatario
-                Name: to[0].name, // Nombre del destinatario
+                Email: sendEmailDto.email,
+                Name: sendEmailDto.name,
               },
             ],
-            Subject: subject, // Asunto del correo
-            TextPart: text, // Texto plano
-            HTMLPart: html, // Parte HTML del correo
+            Subject: `Urbano Soporte - ${sendEmailDto.name}`,
+            TextPart: sendEmailDto?.message || 'No hay mensaje',
+            HTMLPart: recived(sendEmailDto.name, sendEmailDto.message),
           },
         ],
       });
 
-      const result = await request;
-      return result.body;
+      return { message: 'Email enviado' };
     } catch (error) {
-      console.error('Error al enviar correo:', error.statusCode, error.message);
-      throw new Error('Error al enviar correo');
+      throw new HttpException('Error al enviar correo', HttpStatus.BAD_REQUEST);
     }
   }
 }

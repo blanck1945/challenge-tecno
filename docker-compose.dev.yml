@@ -5,9 +5,9 @@ services:
     image: postgres:alpine
     container_name: database
     environment:
-      POSTGRES_DB: carna-database
-      POSTGRES_USER: carna
-      POSTGRES_PASSWORD: IjSJmKN1fc#DZBL*NHbVoxIh65JvsFFDO@so
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USERNAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
     volumes:
       - pg_data:/var/lib/postgresql/data
 
@@ -15,35 +15,35 @@ services:
     container_name: backend
     build:
       context: backend
-      dockerfile: Dockerfile.dev  # Utilizar un Dockerfile de desarrollo
+      dockerfile: Dockerfile.dev
     depends_on:
       - database
     environment:
-      DATABASE_HOST: database
-      DATABASE_PORT: 5432
-      DATABASE_USERNAME: carna
-      DATABASE_PASSWORD: IjSJmKN1fc#DZBL*NHbVoxIh65JvsFFDO@so
-      DATABASE_NAME: "carna-database"
-      JWT_SECRET: 4125442A472D4B6150645367556B58703273357638792F423F4528482B4D6251
-      JWT_REFRESH_SECRET: 576E5A7134743777217A25432A462D4A614E645267556B58703273357538782F
+      DATABASE_HOST: ${DATABASE_HOST}
+      DATABASE_PORT: ${DATABASE_PORT}
+      DATABASE_USERNAME: ${DATABASE_USERNAME}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_NAME: ${DATABASE_NAME}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
     volumes:
-      - ./backend:/app  # Montar el código fuente local para hot-reloading
+      - ./backend:/app
     ports:
       - "5000:5000"
-    command: ["yarn", "start:dev"]  
+    command: ["yarn", "start:dev"]
 
   frontend:
     container_name: frontend
     build:
       context: frontend
-      dockerfile: Dockerfile.dev  # Utiliza el Dockerfile de desarrollo
+      dockerfile: Dockerfile.dev
     ports:
-      - "3000:3000"  # Exponer el puerto 3000 para acceso a la app de React
+      - "3000:3000"
     volumes:
-      - ./frontend:/app  # Montar los archivos locales para hot-reloading
-    command: ["yarn", "start"]  # Ejecutar craco start
+      - ./frontend:/app
+    command: ["yarn", "start"]
     environment:
-      - CHOKIDAR_USEPOLLING=true  # Activar polling para detectar cambios en archivos
+      - CHOKIDAR_USEPOLLING=true
     depends_on:
       - backend
 

@@ -98,7 +98,10 @@ export default function CoursesTable({
             : data.results.map(
                 ({ id, name, description, createdAt, language }) => {
                   let isEnrolled = false;
-                  if (authenticatedUser.role === 'user') {
+                  if (
+                    authenticatedUser.role === 'user' &&
+                    userEnrolledCourses
+                  ) {
                     isEnrolled = userEnrolledCourses.includes(id);
                   }
                   return (

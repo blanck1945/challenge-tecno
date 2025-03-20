@@ -1,4 +1,5 @@
 import { BookOpen, Home, LogOut, Star, User, Users } from 'react-feather';
+import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router';
 import { Link } from 'react-router-dom';
 
@@ -12,7 +13,7 @@ interface SidebarProps {
 
 export default function Sidebar({ className }: SidebarProps) {
   const history = useHistory();
-
+  const { t } = useTranslation();
   const { authenticatedUser, setAuthenticatedUser } = useAuth();
 
   const handleLogout = async () => {
@@ -34,34 +35,36 @@ export default function Sidebar({ className }: SidebarProps) {
       <Link to="/" className="no-underline text-black relative z-10">
         <img
           className="w-full px-4"
-          src="assets/urbano-logo-white.png"
+          src="/assets/urbano-logo-white.png"
           alt="urbano-logo"
         />
       </Link>
       <nav className="mt-24 flex flex-col gap-8 flex-grow px-6 relative z-10">
         <SidebarItem to="/">
-          <Home /> Dashboard
+          <Home /> {t('sidebar.dashboard')}
         </SidebarItem>
         <SidebarItem to="/courses">
-          <BookOpen /> Courses
+          <BookOpen /> {t('sidebar.courses')}
         </SidebarItem>
-        {authenticatedUser.role === 'admin' ? (
+        {authenticatedUser.role === 'admin' && (
           <SidebarItem to="/users">
-            <Users /> Users
+            <Users /> {t('sidebar.users')}
           </SidebarItem>
-        ) : null}
+        )}
         <SidebarItem to="/profile">
-          <User /> Profile
+          <User /> {t('sidebar.profile')}
         </SidebarItem>
-        <SidebarItem to="/favorites">
-          <Star /> Favorites
-        </SidebarItem>
+        {authenticatedUser.role === 'user' && (
+          <SidebarItem to="/favorites">
+            <Star /> {t('sidebar.favorites')}
+          </SidebarItem>
+        )}
       </nav>
       <button
         className="text-red-500 rounded-md p-3 transition-colors flex gap-3 justify-center items-center font-semibold focus:outline-none relative z-10"
         onClick={handleLogout}
       >
-        <LogOut /> Logout
+        <LogOut /> {t('sidebar.logout')}
       </button>
     </div>
   );

@@ -10,7 +10,6 @@ import { UserModule } from './user/user.module';
 import { UserCourseEnrollmentModule } from './enrollment/enrollment.module';
 import { MailService } from './mail/mail.service';
 import { MailController } from './mail/mail.controller';
-import { FavoritesService } from './favorites/favorites.service';
 import { FavoritesModule } from './favorites/favorites.module';
 import { ScriptsModule } from './scripts/scripts.module';
 import { ReviewModule } from './review/review.module';
@@ -29,6 +28,6 @@ import { ReviewModule } from './review/review.module';
     ScriptsModule,
   ],
   controllers: [MailController],
-  providers: [MailService, FavoritesService],
+  providers: [MailService],
 })
 export class AppModule {}

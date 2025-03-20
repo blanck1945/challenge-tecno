@@ -1,20 +1,35 @@
 import { useState } from 'react';
 import { AlertTriangle, Loader, X } from 'react-feather';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
+import { Paginator } from '../../models/core/Paginator';
 import UpdateUserRequest from '../../models/user/UpdateUserRequest';
 import User from '../../models/user/User';
 import userService from '../../services/UserService';
+import TablePaginator from '../core/TablePaginator';
 import Modal from '../shared/Modal';
 import Table from '../shared/Table';
 import TableItem from '../shared/TableItem';
 
 interface UsersTableProps {
-  data: User[];
+  data: Paginator<User>;
   isLoading: boolean;
+  setPage: (page: number) => void;
+  refetch: () => void;
+  limit: number;
+  setLimit: (limit: number) => void;
 }
 
-export default function UsersTable({ data, isLoading }: UsersTableProps) {
+export default function UsersTable({
+  data,
+  isLoading,
+  setPage,
+  refetch,
+  limit,
+  setLimit,
+}: UsersTableProps) {
+  const { t } = useTranslation();
   const [deleteShow, setDeleteShow] = useState<boolean>(false);
   const [updateShow, setUpdateShow] = useState<boolean>(false);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
@@ -34,6 +49,7 @@ export default function UsersTable({ data, isLoading }: UsersTableProps) {
       setIsDeleting(true);
       await userService.delete(selectedUserId);
       setDeleteShow(false);
+      refetch();
     } catch (error) {
       setError(error.response.data.message);
     } finally {
@@ -47,18 +63,31 @@ export default function UsersTable({ data, isLoading }: UsersTableProps) {
       setUpdateShow(false);
       reset();
       setError(null);
+      refetch();
     } catch (error) {
       setError(error.response.data.message);
     }
   };
 
+  const handlePageChange = (page: number) => {
+    setPage(page);
+    refetch();
+  };
+
   return (
     <>
       <div className="table-container">
-        <Table columns={['Name', 'Username', 'Status', 'Role', 'Created']}>
+        <Table
+          columns={[
+            t('users.users_table.name'),
+            t('users.username'),
+            t('users.users_table.status'),
+            t('users.role'),
+          ]}
+        >
           {isLoading
             ? null
-            : data.map(
+            : data.results.map(
                 ({ id, firstName, lastName, role, isActive, username }) => (
                   <tr key={id}>
                     <TableItem>{`${firstName} ${lastName}`}</TableItem>
@@ -66,11 +95,11 @@ export default function UsersTable({ data, isLoading }: UsersTableProps) {
                     <TableItem>
                       {isActive ? (
                         <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                          Active
+                          {t('users.users_table.status_active')}
                         </span>
                       ) : (
                         <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                          Inactive
+                          {t('users.users_table.status_inactive')}
                         </span>
                       )}
                     </TableItem>
@@ -90,7 +119,7 @@ export default function UsersTable({ data, isLoading }: UsersTableProps) {
                           setUpdateShow(true);
                         }}
                       >
-                        Edit
+                        {t('users.users_table.edit')}
                       </button>
                       <button
                         className="text-red-600 hover:text-red-900 ml-3 focus:outline-none"
@@ -99,7 +128,7 @@ export default function UsersTable({ data, isLoading }: UsersTableProps) {
                           setDeleteShow(true);
                         }}
                       >
-                        Delete
+                        {t('users.users_table.delete')}
                       </button>
                     </TableItem>
                   </tr>
@@ -107,23 +136,32 @@ export default function UsersTable({ data, isLoading }: UsersTableProps) {
               )}
         </Table>
 
-        {!isLoading && data.length < 1 ? (
+        {!isLoading && data.results.length < 1 ? (
           <div className="text-center my-5 text-gray-500">
-            <h1>Empty</h1>
+            <h1>{t('users.empty')}</h1>
           </div>
         ) : null}
+
+        <TablePaginator
+          data={data}
+          setPage={handlePageChange}
+          limit={limit}
+          setLimit={setLimit}
+          refetch={refetch}
+        />
       </div>
       {/* Delete User Modal */}
       <Modal show={deleteShow}>
         <AlertTriangle size={30} className="text-red-500 mr-5 fixed" />
         <div className="ml-10">
-          <h3 className="mb-2 font-semibold">Delete User</h3>
+          <h3 className="mb-2 font-semibold">
+            {t('users.delete_user.header')}
+          </h3>
           <hr />
           <p className="mt-2">
-            Are you sure you want to delete the user? All of user's data will be
-            permanently removed.
+            {t('users.delete_user.message')}
             <br />
-            This action cannot be undone.
+            {t('users.delete_user.warning')}
           </p>
         </div>
         <div className="flex flex-row gap-3 justify-end mt-5">
@@ -135,7 +173,7 @@ export default function UsersTable({ data, isLoading }: UsersTableProps) {
             }}
             disabled={isDeleting}
           >
-            Cancel
+            {t('users.delete_user.cancel')}
           </button>
           <button
             className="btn danger"
@@ -145,7 +183,7 @@ export default function UsersTable({ data, isLoading }: UsersTableProps) {
             {isDeleting ? (
               <Loader className="mx-auto animate-spin" />
             ) : (
-              'Delete'
+              t('users.delete_user.delete')
             )}
           </button>
         </div>
@@ -158,7 +196,9 @@ export default function UsersTable({ data, isLoading }: UsersTableProps) {
       {/* Update User Modal */}
       <Modal show={updateShow}>
         <div className="flex">
-          <h1 className="font-semibold mb-3">Update User</h1>
+          <h1 className="font-semibold mb-3">
+            {t('users.update_user.header')}
+          </h1>
           <button
             className="ml-auto focus:outline-none"
             onClick={() => {
@@ -180,13 +220,13 @@ export default function UsersTable({ data, isLoading }: UsersTableProps) {
             <input
               type="text"
               className="input sm:w-1/2"
-              placeholder="First Name"
+              placeholder={t('users.update_user.first_name')}
               {...register('firstName')}
             />
             <input
               type="text"
               className="input sm:w-1/2"
-              placeholder="Last Name"
+              placeholder={t('users.update_user.last_name')}
               disabled={isSubmitting}
               {...register('lastName')}
             />
@@ -194,14 +234,14 @@ export default function UsersTable({ data, isLoading }: UsersTableProps) {
           <input
             type="text"
             className="input"
-            placeholder="Username"
+            placeholder={t('users.update_user.username')}
             disabled={isSubmitting}
             {...register('username')}
           />
           <input
             type="password"
             className="input"
-            placeholder="Password"
+            placeholder={t('users.update_user.password')}
             disabled={isSubmitting}
             {...register('password')}
           />
@@ -210,12 +250,14 @@ export default function UsersTable({ data, isLoading }: UsersTableProps) {
             {...register('role')}
             disabled={isSubmitting}
           >
-            <option value="user">User</option>
-            <option value="editor">Editor</option>
-            <option value="admin">Admin</option>
+            <option value="user">{t('users.role_options.user')}</option>
+            <option value="editor">{t('users.role_options.editor')}</option>
+            <option value="admin">{t('users.role_options.admin')}</option>
           </select>
           <div>
-            <label className="font-semibold mr-3">Active</label>
+            <label className="font-semibold mr-3">
+              {t('users.update_user.active')}
+            </label>
             <input
               type="checkbox"
               className="input w-5 h-5"
@@ -226,7 +268,7 @@ export default function UsersTable({ data, isLoading }: UsersTableProps) {
             {isSubmitting ? (
               <Loader className="animate-spin mx-auto" />
             ) : (
-              'Save'
+              t('users.save')
             )}
           </button>
           {error ? (

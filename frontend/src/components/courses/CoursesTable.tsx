@@ -1,35 +1,53 @@
 import { useState } from 'react';
 import { AlertTriangle, Loader, X } from 'react-feather';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
+import { useQuery } from 'react-query';
 import { Link } from 'react-router-dom';
 
 import useAuth from '../../hooks/useAuth';
+import { Paginator } from '../../models/core/Paginator';
 import Course from '../../models/course/Course';
 import UpdateCourseRequest from '../../models/course/UpdateCourseRequest';
 import courseService from '../../services/CourseService';
+import EnrollService from '../../services/EnrollService';
+import TablePaginator from '../core/TablePaginator';
 import Modal from '../shared/Modal';
 import Table from '../shared/Table';
 import TableItem from '../shared/TableItem';
 
 interface UsersTableProps {
-  data: any;
+  data: Paginator<Course>;
   isLoading: boolean;
+  limit: number;
   refetch: () => void;
   setPage: (page: number) => void;
+  setLimit: (limit: number) => void;
 }
 
 export default function CoursesTable({
   data,
   isLoading,
+  limit,
   refetch,
   setPage,
+  setLimit,
 }: UsersTableProps) {
+  const { t } = useTranslation();
   const { authenticatedUser } = useAuth();
   const [deleteShow, setDeleteShow] = useState<boolean>(false);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [selectedCourseId, setSelectedCourseId] = useState<string>();
   const [error, setError] = useState<string>();
   const [updateShow, setUpdateShow] = useState<boolean>(false);
+
+  const { data: userEnrolledCourses } = useQuery(
+    ['userEnrolledCourses'],
+    () => EnrollService.findAllEnrolledCoursesByUserId(authenticatedUser.id),
+    {
+      enabled: authenticatedUser.role === 'user',
+    },
+  );
 
   const {
     register,
@@ -44,6 +62,7 @@ export default function CoursesTable({
       setIsDeleting(true);
       await courseService.delete(selectedCourseId);
       setDeleteShow(false);
+      refetch();
     } catch (error) {
       setError(error.response.data.message);
     } finally {
@@ -63,97 +82,109 @@ export default function CoursesTable({
     }
   };
 
-  const handlePageChange = (page: number) => {
-    setPage(page);
-    refetch();
-  };
-
   return (
     <>
       <div className="table-container">
-        <Table columns={['Name', 'Description', 'Created']}>
+        <Table
+          columns={[
+            t('courses.course_table.name'),
+            t('courses.course_table.description'),
+            t('courses.course_table.language'),
+            t('courses.course_table.created'),
+          ]}
+        >
           {isLoading
             ? null
-            : data?.courses.map(({ id, name, description, dateCreated }) => (
-                <tr key={id}>
-                  <TableItem>
-                    <Link to={`/courses/${id}`}>{name}</Link>
-                  </TableItem>
-                  <TableItem>{description}</TableItem>
-                  <TableItem>
-                    {new Date(dateCreated).toLocaleDateString()}
-                  </TableItem>
-                  <TableItem className="text-right">
-                    {['admin', 'editor'].includes(authenticatedUser.role) ? (
-                      <button
-                        className="text-indigo-600 hover:text-indigo-900 focus:outline-none"
-                        onClick={() => {
-                          setSelectedCourseId(id);
+            : data.results.map(
+                ({ id, name, description, createdAt, language }) => {
+                  let isEnrolled = false;
+                  if (authenticatedUser.role === 'user') {
+                    isEnrolled = userEnrolledCourses.includes(id);
+                  }
+                  return (
+                    <tr key={id} className={isEnrolled ? 'bg-green-100' : ''}>
+                      <TableItem>
+                        <Link to={`/courses/${id}`}>
+                          {name.charAt(0).toUpperCase() + name.slice(1)}
+                        </Link>
+                      </TableItem>
+                      <TableItem>
+                        {description.charAt(0).toUpperCase() +
+                          description.slice(1)}
+                      </TableItem>
+                      <TableItem>{language}</TableItem>
+                      <TableItem>
+                        {new Date(createdAt).toLocaleDateString()}
+                      </TableItem>
+                      <TableItem className="text-right">
+                        {isEnrolled && (
+                          <span className="badge bg-green-500 text-white mr-2 px-2 py-1 rounded-md">
+                            {t('courses.course_table.user_enrolled')}
+                          </span>
+                        )}
+                        {['admin', 'editor'].includes(
+                          authenticatedUser.role,
+                        ) ? (
+                          <button
+                            className="text-indigo-600 hover:text-indigo-900 focus:outline-none"
+                            onClick={() => {
+                              setSelectedCourseId(id);
 
-                          setValue('name', name);
-                          setValue('description', description);
-
-                          setUpdateShow(true);
-                        }}
-                      >
-                        Edit
-                      </button>
-                    ) : null}
-                    {authenticatedUser.role === 'admin' ? (
-                      <button
-                        className="text-red-600 hover:text-red-900 ml-3 focus:outline-none"
-                        onClick={() => {
-                          setSelectedCourseId(id);
-                          setDeleteShow(true);
-                        }}
-                      >
-                        Delete
-                      </button>
-                    ) : null}
-                  </TableItem>
-                </tr>
-              ))}
+                              setValue('name', name);
+                              setValue('description', description);
+                              setValue('language', language);
+                              setUpdateShow(true);
+                            }}
+                          >
+                            {t('courses.course_table.edit')}
+                          </button>
+                        ) : null}
+                        {authenticatedUser.role === 'admin' ? (
+                          <button
+                            className="text-red-600 hover:text-red-900 ml-3 focus:outline-none"
+                            onClick={() => {
+                              setSelectedCourseId(id);
+                              setDeleteShow(true);
+                            }}
+                          >
+                            {t('courses.course_table.delete')}
+                          </button>
+                        ) : null}
+                      </TableItem>
+                    </tr>
+                  );
+                },
+              )}
         </Table>
 
-        <div className="flex justify-between items-center mt-4 border-t p-4">
-          <div className="text-sm text-gray-700">
-            Mostrando página {data?.page} de {data?.lastPage}
-          </div>
-          <div className="flex gap-2">
-            <button
-              className="btn"
-              disabled={data?.page === 1}
-              onClick={() => handlePageChange(data?.page - 1)}
-            >
-              Anterior
-            </button>
-            <button
-              className="btn"
-              disabled={data?.page === data?.lastPage}
-              onClick={() => handlePageChange(data?.page + 1)}
-            >
-              Siguiente
-            </button>
-          </div>
-        </div>
-
-        {!isLoading && data.length < 1 ? (
+        {!isLoading && data.results.length < 1 ? (
           <div className="text-center my-5 text-gray-500">
-            <h1>Empty</h1>
+            <h1>{t('courses.course_table.empty')}</h1>
           </div>
         ) : null}
+
+        {/* Paginator */}
+        <TablePaginator
+          data={data}
+          limit={limit}
+          setLimit={setLimit}
+          setPage={setPage}
+          refetch={refetch}
+        />
       </div>
+
       {/* Delete Course Modal */}
       <Modal show={deleteShow}>
         <AlertTriangle size={30} className="text-red-500 mr-5 fixed" />
         <div className="ml-10">
-          <h3 className="mb-2 font-semibold">Delete Course</h3>
+          <h3 className="mb-2 font-semibold">
+            {t('courses.delete_course.header')}
+          </h3>
           <hr />
           <p className="mt-2">
-            Are you sure you want to delete the course? All of course's data
-            will be permanently removed.
+            {t('courses.delete_course.message')}
             <br />
-            This action cannot be undone.
+            {t('courses.delete_course.warning')}
           </p>
         </div>
         <div className="flex flex-row gap-3 justify-end mt-5">
@@ -165,7 +196,7 @@ export default function CoursesTable({
             }}
             disabled={isDeleting}
           >
-            Cancel
+            {t('courses.delete_course.cancel')}
           </button>
           <button
             className="btn danger"
@@ -175,7 +206,7 @@ export default function CoursesTable({
             {isDeleting ? (
               <Loader className="mx-auto animate-spin" />
             ) : (
-              'Delete'
+              t('courses.delete_course.delete')
             )}
           </button>
         </div>
@@ -188,7 +219,9 @@ export default function CoursesTable({
       {/* Update Course Modal */}
       <Modal show={updateShow}>
         <div className="flex">
-          <h1 className="font-semibold mb-3">Update Course</h1>
+          <h1 className="font-semibold mb-3">
+            {t('courses.update_course.header')}
+          </h1>
           <button
             className="ml-auto focus:outline-none"
             onClick={() => {
@@ -209,23 +242,30 @@ export default function CoursesTable({
           <input
             type="text"
             className="input"
-            placeholder="Name"
+            placeholder={t('courses.name')}
             required
             {...register('name')}
           />
           <input
             type="text"
             className="input"
-            placeholder="Description"
+            placeholder={t('courses.description')}
             required
             disabled={isSubmitting}
             {...register('description')}
           />
+          <select className="input" {...register('language')}>
+            <option value="" selected disabled hidden>
+              {t('courses.language')}
+            </option>
+            <option value="en">English</option>
+            <option value="es">Spanish</option>
+          </select>
           <button className="btn" disabled={isSubmitting}>
             {isSubmitting ? (
               <Loader className="animate-spin mx-auto" />
             ) : (
-              'Save'
+              t('courses.save')
             )}
           </button>
           {error ? (

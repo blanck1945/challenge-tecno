@@ -2,12 +2,14 @@ import {
   Body,
   ClassSerializerInterceptor,
   Controller,
+  DefaultValuePipe,
   Delete,
   Get,
   HttpCode,
   HttpStatus,
   Param,
-  Patch,
+  ParseIntPipe,
+  ParseUUIDPipe,
   Post,
   Put,
   Query,
@@ -23,11 +25,10 @@ import { Roles } from '../decorators/roles.decorator';
 import { Role } from '../enums/role.enum';
 import { CreateUserDto, UpdateUserDto } from './user.dto';
 import { User } from './user.entity';
-import { UserQuery } from './user.query';
 import { UserService } from './user.service';
-import { Course } from 'src/course/course.entity';
-import { Pagination } from 'src/interfaces/pagination.interface';
-import { FavoritesService } from 'src/favorites/favorites.service';
+import { Pagination } from '../interfaces/pagination.interface';
+import { FavoritesService } from '../favorites/favorites.service';
+import { FindOperator, IsNull, Not } from 'typeorm';
 
 @Controller('users')
 @ApiTags('Users')
@@ -49,25 +50,44 @@ export class UserController {
 
   @Get()
   @Roles(Role.Admin)
-  async findAll(@Query() userQuery: UserQuery): Promise<Pagination<User>> {
-    return await this.userService.findAll(userQuery);
+  async findAll(
+    @Query('sortBy', new DefaultValuePipe('firstName:ASC')) sortBy: string,
+    @Query('page', ParseIntPipe) page: number,
+    @Query('limit', ParseIntPipe) limit: number,
+    @Query('firstName', new DefaultValuePipe('')) firstName: string,
+    @Query('lastName', new DefaultValuePipe('')) lastName: string,
+    @Query('username', new DefaultValuePipe('')) username: string,
+    @Query('role', new DefaultValuePipe(Not(IsNull())))
+    role: Role | FindOperator<Role>,
+  ): Promise<Pagination<User>> {
+    return await this.userService.findAll(
+      sortBy,
+      page,
+      limit,
+      firstName,
+      lastName,
+      username,
+      role,
+    );
   }
 
   @Get('/:id')
   @UseGuards(UserGuard)
-  async findOne(@Param('id') id: string): Promise<User> {
+  async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<User> {
     return await this.userService.findById(id);
   }
 
   @Get(':id/favorites')
-  async getFavorites(@Param('id') userId: string): Promise<User> {
+  async getFavorites(
+    @Param('id', ParseUUIDPipe) userId: string,
+  ): Promise<User> {
     return this.userService.getFavorites(userId);
   }
 
   @Put('/:id')
   @UseGuards(UserGuard)
   async update(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<User> {
     return await this.userService.update(id, updateUserDto);
@@ -75,7 +95,7 @@ export class UserController {
 
   @Delete('/:id')
   @Roles(Role.Admin)
-  async delete(@Param('id') id: string): Promise<string> {
+  async delete(@Param('id', ParseUUIDPipe) id: string): Promise<string> {
     return await this.userService.delete(id);
   }
 }

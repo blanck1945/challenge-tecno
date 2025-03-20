@@ -8,9 +8,9 @@ import {
 } from 'typeorm';
 
 import { Role } from '../enums/role.enum';
-import { UserCourseEnrollment } from 'src/enrollment/enrollment.entity';
-import { Favorite } from 'src/favorites/favorites.entity';
-import { Review } from 'src/review/review.entity';
+import { UserCourseEnrollment } from '../enrollment/enrollment.entity';
+import { Favorite } from '../favorites/favorites.entity';
+import { Review } from '../review/review.entity';
 
 @Entity()
 export class User extends BaseEntity {

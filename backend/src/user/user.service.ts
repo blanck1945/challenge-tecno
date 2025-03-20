@@ -3,12 +3,12 @@ import * as bcrypt from 'bcrypt';
 
 import { CreateUserDto, UpdateUserDto } from './user.dto';
 import { User } from './user.entity';
-import { UserQuery } from './user.query';
-import { Pagination } from 'src/interfaces/pagination.interface';
-import { handleIlike } from 'src/helpers/handleIlike';
-import { Order } from 'src/enums/order.enum';
+import { Pagination } from '../interfaces/pagination.interface';
+import { handleIlike } from '../helpers/handleIlike';
+import { handleSort } from '../helpers/handleSort';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindOperator, Repository } from 'typeorm';
+import { Role } from 'src/enums/role.enum';
 
 @Injectable()
 export class UserService {
@@ -33,17 +33,25 @@ export class UserService {
     return this.userRepository.save(newUser);
   }
 
-  async findAll(userQuery: UserQuery): Promise<Pagination<User>> {
-    const { page, limit, ...rest } = userQuery;
-
-    const whereQuery = handleIlike(rest, ['firstName', 'lastName', 'username']);
+  async findAll(
+    sortBy: string,
+    page: number,
+    limit: number,
+    firstName: string,
+    lastName: string,
+    username: string,
+    role: Role | FindOperator<Role>,
+  ): Promise<Pagination<User>> {
+    const whereQuery = handleIlike({
+      firstName,
+      lastName,
+      username,
+    });
+    const order = handleSort(sortBy);
 
     const [users, total] = await this.userRepository.findAndCount({
-      where: { ...rest, ...whereQuery },
-      order: {
-        firstName: Order.ASC,
-        lastName: Order.ASC,
-      },
+      where: { ...whereQuery, role },
+      order,
       skip: (page - 1) * limit,
       take: limit,
     });

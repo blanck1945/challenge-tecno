@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { UserCourseEnrollment } from './enrollment.entity';
 import { User } from '../user/user.entity';
 import { Course } from '../course/course.entity';
-import { EnrolledStatus } from 'src/enums/enrolled.enum';
+import { EnrolledStatus } from '../enums/enrolled.enum';
 
 @Injectable()
 export class UserCourseEnrollmentService {
@@ -70,9 +70,9 @@ export class UserCourseEnrollmentService {
   }
 
   async getEnrolledCourses(userId: string): Promise<string[]> {
-    const enrollments = await UserCourseEnrollment.find({
+    const enrollments = await this.enrollmentRepository.find({
       where: { user: userId, enrolled: true },
-      select: ['course'],
+      relations: ['course'],
     });
 
     return enrollments.map((e) => e.course.id);

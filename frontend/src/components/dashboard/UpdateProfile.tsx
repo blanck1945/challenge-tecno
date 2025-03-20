@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Loader } from 'react-feather';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { useQuery } from 'react-query';
 
 import useAuth from '../../hooks/useAuth';
@@ -8,6 +9,7 @@ import UpdateUserRequest from '../../models/user/UpdateUserRequest';
 import userService from '../../services/UserService';
 
 export default function UpdateProfile() {
+  const { t } = useTranslation();
   const { authenticatedUser } = useAuth();
   const [error, setError] = useState<string>();
 
@@ -44,49 +46,61 @@ export default function UpdateProfile() {
           className="flex mt-3 flex-col gap-3 justify-center md:w-1/2 lg:w-1/3 mx-auto items-center"
           onSubmit={handleSubmit(handleUpdateUser)}
         >
-          <h1 className="font-semibold text-4xl mb-10">{`Welcome ${data.firstName}`}</h1>
+          <h1 className="font-semibold text-4xl mb-10">
+            {t('profile.header')}
+          </h1>
           <hr />
           <div className="flex gap-3 w-full">
             <div className="w-1/2">
-              <label className="font-semibold">First Name</label>
+              <label className="font-semibold">{t('profile.name')}</label>
               <input
                 type="text"
                 className="input w-full mt-1"
                 defaultValue={data.firstName}
                 disabled={isSubmitting}
-                placeholder="First Name"
+                placeholder={t('profile.name')}
                 {...register('firstName')}
               />
             </div>
             <div className="w-1/2">
-              <label className="font-semibold">Last Name</label>
+              <label className="font-semibold">{t('profile.last_name')}</label>
               <input
                 type="text"
                 className="input w-full mt-1"
                 defaultValue={data.lastName}
                 disabled={isSubmitting}
-                placeholder="Last Name"
+                placeholder={t('profile.last_name')}
                 {...register('lastName')}
               />
             </div>
           </div>
           <div className="w-full">
-            <label className="font-semibold">Username</label>
+            <label className="font-semibold">{t('profile.username')}</label>
             <input
               type="text"
               className="input w-full mt-1"
               defaultValue={data.username}
               disabled={isSubmitting}
-              placeholder="Username"
+              placeholder={t('profile.username')}
               {...register('username')}
             />
           </div>
           <div className="w-full">
-            <label className="font-semibold">Password</label>
+            <label className="font-semibold">{t('profile.role')}</label>
+            <input
+              type="text"
+              className="input w-full mt-1"
+              defaultValue={authenticatedUser.role}
+              disabled
+              placeholder={t('profile.role')}
+            />
+          </div>
+          <div className="w-full">
+            <label className="font-semibold">{t('profile.password')}</label>
             <input
               type="password"
               className="input w-full mt-1"
-              placeholder="Password (min 6 characters)"
+              placeholder={`${t('profile.password')} (min 6 characters)`}
               disabled={isSubmitting}
               {...register('password')}
             />
@@ -95,7 +109,7 @@ export default function UpdateProfile() {
             {isSubmitting ? (
               <Loader className="animate-spin mx-auto" />
             ) : (
-              'Update'
+              t('profile.update')
             )}
           </button>
           {error ? (

@@ -1,5 +1,9 @@
 {
     "change_language": "Cambiar a Inglés",
+    "language_selector": {
+        "english": "Inglés",
+        "spanish": "Español"
+    },
     "dashboard": {
         "header": "Panel de control",
         "new_courses": "Nuevos cursos",
@@ -16,6 +20,7 @@
         "name": "Nombre",
         "description": "Descripción",
         "language": "Idioma",
+        "save": "Guardar",
         "language_options": {
             "all": "Todos",
             "en": "Inglés",
@@ -34,6 +39,27 @@
             "language": "Idioma",
             "created": "Creado",
             "edit": "Editar",
+            "delete": "Eliminar",
+            "user_enrolled": "Inscrito",
+            "empty": "No hay cursos"
+        },
+        "add_course": {
+            "header": "Agregar Curso",
+            "name": "Nombre",
+            "description": "Descripción",
+            "language": "Idioma"
+        },
+        "update_course": {
+            "header": "Actualizar Curso",
+            "name": "Nombre",
+            "description": "Descripción",
+            "language": "Idioma"
+        },
+        "delete_course": {
+            "header": "Eliminar Curso",
+            "message": "¿Estás seguro de querer eliminar este curso?",
+            "warning": "Esta acción no se puede deshacer.",
+            "cancel": "Cancelar",
             "delete": "Eliminar"
         },
         "paginator": {
@@ -51,12 +77,42 @@
         "last_name": "Apellido",
         "username": "Nombre de usuario",
         "role": "Rol",
+        "role_options": {
+            "all": "Todos",
+            "admin": "Administrador",
+            "editor": "Editor",
+            "user": "Usuario"
+        },
+        "save": "Guardar",
         "users_table": {
             "name": "Nombre",
             "username": "Nombre de usuario",
             "status": "Estado",
             "role": "Rol",
-            "created": "Creado"
+            "created": "Creado",
+            "status_active": "Activo",
+            "status_inactive": "Inactivo",
+            "edit": "Editar",
+            "delete": "Eliminar"
+        },
+        "add_user": {
+            "header": "Agregar Usuario"
+        },
+        "update_user": {
+            "header": "Actualizar Usuario",
+            "first_name": "Nombre",
+            "last_name": "Apellido",
+            "username": "Nombre de usuario",
+            "password": "Contraseña",
+            "role": "Rol",
+            "active": "Activo"
+        },
+        "delete_user": {
+            "header": "Eliminar Usuario",
+            "message": "¿Estás seguro de querer eliminar este usuario?",
+            "warning": "Esta acción no se puede deshacer.",
+            "cancel": "Cancelar",
+            "delete": "Eliminar"
         },
         "paginator": {
             "showing": "Mostrando página",
@@ -78,8 +134,80 @@
     "contact": {
         "header": "Contacto",
         "name": "Nombre",
-        "email": "Email",
+        "email": "Correo electrónico",
         "message": "Mensaje",
         "send": "Enviar"
+    },
+    "contents": {
+        "header": "Gestionar Contenidos",
+        "add": "Agregar Contenido",
+        "refresh": "Actualizar",
+        "add_content_btn": "Agregar Contenido",
+        "content_table": {
+            "image": "Imagen",
+            "name": "Nombre",
+            "description": "Descripción",
+            "created": "Creado",
+            "edit": "Editar",
+            "delete": "Eliminar",
+            "empty": "No hay contenidos"
+        },
+        "add_content": {
+            "header": "Agregar Contenido",
+            "name": "Nombre",
+            "description": "Descripción",
+            "image": "Imagen",
+            "save": "Guardar"
+        },
+        "update_content": {
+            "header": "Actualizar Contenido",
+            "name": "Nombre",
+            "description": "Descripción",
+            "image": "Imagen",
+            "save": "Guardar"
+        },
+        "delete_content": {
+            "header": "Eliminar Contenido",
+            "message": "¿Estás seguro de querer eliminar este contenido?",
+            "warning": "Esta acción no se puede deshacer.",
+            "cancel": "Cancelar",
+            "delete": "Eliminar"
+        },
+        "favorite": {
+            "remove": "Eliminar de favoritos",
+            "add": "Agregar a favoritos",
+            "confirm": "¿Estás seguro que deseas {action} este curso?",
+            "remove_action": "eliminar de favoritos",
+            "add_action": "agregar a favoritos",
+            "confirm_button": "Confirmar"
+        }
+    },
+    "sidebar": {
+        "dashboard": "Panel de control",
+        "courses": "Cursos",
+        "users": "Usuarios",
+        "profile": "Perfil",
+        "favorites": "Favoritos",
+        "logout": "Cerrar sesión"
+    },
+    "login": {
+        "header": "Iniciar sesión",
+        "username": "Nombre de usuario",
+        "password": "Contraseña",
+        "submit": "Iniciar sesión"
+    },
+    "calendar": {
+        "header": "Calendario",
+        "loading": "Cargando..."
+    },
+    "favorites": {
+        "header": "Favoritos",
+        "loading": "Cargando...",
+        "empty": "No hay favoritos",
+        "remove": "Eliminar de favoritos"
+    },
+    "rate": {
+        "header": "Calificar Curso",
+        "button": "Calificar"
     }
 }

@@ -1,5 +1,9 @@
 {
     "change_language": "Change to Spanish",
+    "language_selector": {
+        "english": "English",
+        "spanish": "Spanish"
+    },
     "dashboard": {
         "header": "Dashboard",
         "new_courses": "New Courses",
@@ -16,6 +20,7 @@
         "name": "Name",
         "description": "Description",
         "language": "Language",
+        "save": "Save",
         "language_options": {
             "all": "All",
             "en": "English",
@@ -34,6 +39,27 @@
             "language": "Language",
             "created": "Created",
             "edit": "Edit",
+            "delete": "Delete",
+            "user_enrolled": "Enrolled",
+            "empty": "No courses found"
+        },
+        "add_course": {
+            "header": "Add Course",
+            "name": "Name",
+            "description": "Description",
+            "language": "Language"
+        },
+        "update_course": {
+            "header": "Update Course",
+            "name": "Name",
+            "description": "Description",
+            "language": "Language"
+        },
+        "delete_course": {
+            "header": "Delete Course",
+            "message": "Are you sure you want to delete this course?",
+            "warning": "This action cannot be undone.",
+            "cancel": "Cancel",
             "delete": "Delete"
         },
         "paginator": {
@@ -57,12 +83,36 @@
             "editor": "Editor",
             "user": "User"
         },
+        "save": "Save",
         "users_table": {
             "name": "Name",
             "username": "Username",
             "status": "Status",
             "role": "Role",
-            "created": "Created"
+            "created": "Created",
+            "status_active": "Active",
+            "status_inactive": "Inactive",
+            "edit": "Edit",
+            "delete": "Delete"
+        },
+        "add_user": {
+            "header": "Add User"
+        },
+        "update_user": {
+            "header": "Update User",
+            "first_name": "First Name",
+            "last_name": "Last Name",
+            "username": "Username",
+            "password": "Password",
+            "role": "Role",
+            "active": "Active"
+        },
+        "delete_user": {
+            "header": "Delete User",
+            "message": "Are you sure you want to delete this user?",
+            "warning": "This action cannot be undone.",
+            "cancel": "Cancel",
+            "delete": "Delete"
         },
         "paginator": {
             "showing": "Showing page",
@@ -79,7 +129,7 @@
         "username": "Username",
         "role": "Role",
         "password": "Password",
-        "update": "Update   "
+        "update": "Update"
     },
     "contact": {
         "header": "Contact",
@@ -87,5 +137,77 @@
         "email": "Email",
         "message": "Message",
         "send": "Send"
+    },
+    "contents": {
+        "header": "Manage Contents",
+        "add": "Add Content",
+        "refresh": "Refresh",
+        "add_content_btn": "Add Content",
+        "content_table": {
+            "image": "Image",
+            "name": "Name",
+            "description": "Description",
+            "created": "Created",
+            "edit": "Edit",
+            "delete": "Delete",
+            "empty": "No contents found"
+        },
+        "add_content": {
+            "header": "Add Content",
+            "name": "Name",
+            "description": "Description",
+            "image": "Image",
+            "save": "Save"
+        },
+        "update_content": {
+            "header": "Update Content",
+            "name": "Name",
+            "description": "Description",
+            "image": "Image",
+            "save": "Save"
+        },
+        "delete_content": {
+            "header": "Delete Content",
+            "message": "Are you sure you want to delete this content?",
+            "warning": "This action cannot be undone.",
+            "cancel": "Cancel",
+            "delete": "Delete"
+        },
+        "favorite": {
+            "remove": "Remove from favorites",
+            "add": "Add to favorites",
+            "confirm": "Are you sure you want to {action} this course?",
+            "remove_action": "remove from favorites",
+            "add_action": "add to favorites",
+            "confirm_button": "Confirm"
+        }
+    },
+    "sidebar": {
+        "dashboard": "Dashboard",
+        "courses": "Courses",
+        "users": "Users",
+        "profile": "Profile",
+        "favorites": "Favorites",
+        "logout": "Logout"
+    },
+    "login": {
+        "header": "Login",
+        "username": "Username",
+        "password": "Password",
+        "submit": "Login"
+    },
+    "calendar": {
+        "header": "Calendar",
+        "loading": "Loading..."
+    },
+    "favorites": {
+        "header": "Favorites",
+        "loading": "Loading...",
+        "empty": "No favorites found",
+        "remove": "Remove from favorites"
+    },
+    "rate": {
+        "header": "Rate Course",
+        "button": "Rate"
     }
-  }
+}

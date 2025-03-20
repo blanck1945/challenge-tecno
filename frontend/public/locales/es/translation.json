@@ -136,7 +136,12 @@
         "name": "Nombre",
         "email": "Correo electrónico",
         "message": "Mensaje",
-        "send": "Enviar"
+        "send": "Enviar",
+        "modal": {
+            "thank_you": "¡Gracias {{name}}!",
+            "success_message": "Tu mensaje ha sido enviado con éxito. Nos comunicaremos contigo a la brevedad.",
+            "close": "Cerrar"
+        }
     },
     "contents": {
         "header": "Gestionar Contenidos",
